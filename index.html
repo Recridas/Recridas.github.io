@@ -97,7 +97,11 @@ h2{font-size:18px;margin:0 0 8px}
 .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;width:100%;margin:8px 0}
 .grid3 div{background:var(--chip);border-radius:12px;padding:10px 4px}
 .grid3 small{display:block;font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
-.grid3 b{font-size:17px}
+.grid3 b{font-size:17px;display:block}
+.grid3 i{font-style:normal;font-size:12px;color:var(--muted)}
+.note{background:color-mix(in srgb,var(--warn) 18%,var(--card));border-radius:10px;padding:7px 10px;font-size:13px;margin:6px 0;color:var(--text)}
+select.inp{font-size:15px;text-align:left}
+input[type=range]{width:100%;accent-color:var(--accent)}
 /* anagram */
 .slots{display:flex;justify-content:center;gap:6px;min-height:52px;margin:10px 0;flex-wrap:wrap}
 .slot{width:40px;height:48px;border-radius:10px;border-bottom:3px solid var(--accent);display:grid;place-items:center;font-size:24px;font-weight:700;background:var(--chip)}
@@ -137,95 +141,107 @@ h2{font-size:18px;margin:0 0 8px}
  v1|v2|v3|ipa|emoji|definition|collocations;...|past sentence[#answer]|perfect sentence  */
 const RAW = [
 ["AAA","Ничего не меняется","A – A – A","cut – cut – cut",[
-"cost|cost|cost|kɒst|💰|to have a price|cost a fortune;cost an arm and a leg;cost extra|The tickets ___ fifty dollars.|This trip has ___ us a fortune.",
-"cut|cut|cut|kʌt|✂️|to divide with a knife or scissors|cut your hair;cut the bread;cut costs|She ___ the cake into eight pieces.|Ouch! I have ___ my finger.",
-"hit|hit|hit|hɪt|🥊|to touch something hard and fast|hit the ball;hit the target;hit the road|He ___ the ball over the fence.|The storm has ___ the city.",
-"let|let|let|let|🚪|to allow|let me know;let somebody in;let it go|My parents ___ me stay up late.|They have never ___ us down.",
-"put|put|put|pʊt|📥|to move something to a place|put on a coat;put the kettle on;put pressure on|I ___ my keys on the table.|Have you ___ the milk in the fridge?",
-"shut|shut|shut|ʃʌt|🔒|to close|shut the door;shut your eyes;shut down the computer|He ___ the window because it was cold.|The shop has ___ for the night.",
-"read|read|read|riːd|📖|to look at words and understand them|read a novel;read aloud;read the news|I ___ an interesting article yesterday.|Have you ___ this book?"]],
+"cost|cost|cost|kɒst,kɒst,kɒst|💰|to have a price|cost ten dollars;cost two euros;cost five pounds|The pizza ___ ten dollars.|This phone has ___ a lot of money.",
+"cut|cut|cut|kʌt,kʌt,kʌt|✂️|to make something into pieces with a knife or scissors|cut the paper;cut your hair;cut your finger|She ___ the paper with scissors.|Oh no! I have ___ my finger.",
+"hit|hit|hit|hɪt,hɪt,hɪt|🥊|to touch something very hard|hit the ball;hit your head;hit the wall|He ___ the ball very hard.|Ouch! I have ___ my head.",
+"let|let|let|let,let,let|🚪|to say yes to something; to allow|let me go;let me help;let me see|Mum ___ me play outside.|Dad has ___ me use his phone.",
+"put|put|put|pʊt,pʊt,pʊt|📥|to move something to a place|put on a coat;put on your shoes;put it in the bag|I ___ my keys on the table.|Have you ___ the milk in the fridge?",
+"shut|shut|shut|ʃʌt,ʃʌt,ʃʌt|🔒|to close|shut the door;shut the window;shut your eyes|He ___ the window.|The shop has ___."]],
 ["OUGHT","Звук /ɔːt/","A – ought – ought","buy – bought – bought",[
-"bring|brought|brought|brɪŋ|🎁|to carry something to a place|bring luck;bring back memories;bring a friend along|She ___ a cake to the party.|What have you ___ for lunch?",
-"buy|bought|bought|baɪ|🛒|to get something by paying money|buy groceries;buy time;buy a round of drinks|We ___ a new car last month.|I have just ___ a ticket.",
-"catch|caught|caught|kætʃ|🎣|to take something that is moving|catch a cold;catch a bus;catch a fish|I ___ a cold last week.|Have you ever ___ a fish?",
-"teach|taught|taught|tiːtʃ|👩‍🏫|to help someone learn|teach a class;teach someone a lesson;teach maths|My father ___ me to swim.|She has ___ at this school for ten years.",
-"think|thought|thought|θɪŋk|💭|to use your mind|think twice;think outside the box;think it over|I ___ you were at home.|Have you ___ about my offer?"]],
+"bring|brought|brought|brɪŋ,brɔːt,brɔːt|🎁|to come with something|bring a friend;bring an umbrella;bring a present|She ___ a cake to the party.|What have you ___?",
+"buy|bought|bought|baɪ,bɔːt,bɔːt|🛒|to get something for money|buy milk;buy a ticket;buy new shoes|We ___ a new car.|I have ___ a ticket.",
+"catch|caught|caught|kætʃ,kɔːt,kɔːt|🎣|to take something that is moving|catch a bus;catch a fish;catch a cold|I ___ a cold last week.|Have you ever ___ a fish?",
+"teach|taught|taught|tiːtʃ,tɔːt,tɔːt|👩‍🏫|to help someone learn|teach English;teach children;teach a class|My dad ___ me to swim.|She has ___ English for ten years.",
+"think|thought|thought|θɪŋk,θɔːt,θɔːt|💭|to use your head|think about it;think of a number;think hard|I ___ about you.|Have you ___ about it?"]],
 ["TD","Окончание -t / -d","A – B – B (-t)","keep – kept – kept",[
-"build|built|built|bɪld|🏗️|to make a house or other structure|build a bridge;build trust;build a career|They ___ this bridge in 1990.|We have ___ a strong team.",
-"dream|dreamt/dreamed|dreamt/dreamed|driːm|💤|to see pictures in your sleep; to hope|dream big;dream of success;dream about the sea|I ___ about the sea last night.|She has always ___ of Paris.",
-"feel|felt|felt|fiːl|❤️|to have an emotion or sensation|feel sorry for;feel at home;feel tired|I ___ happy when I saw you.|I have never ___ so tired.",
-"keep|kept|kept|kiːp|🔐|to have and not give away; to continue|keep a secret;keep calm;keep a diary|He ___ his promise.|She has ___ this letter for years.",
-"learn|learnt/learned|learnt/learned|lɜːn|🧠|to get new knowledge or skills|learn by heart;learn from mistakes;learn to drive|I ___ to drive when I was 18.|What have you ___ today?",
-"leave|left|left|liːv|🚶|to go away from a place|leave home;leave a message;leave someone alone|We ___ the party at midnight.|The train has already ___.",
-"lend|lent|lent|lend|🤝|to give something for a short time|lend a hand;lend money;lend an ear|He ___ me his bike yesterday.|I have ___ her my notes.",
-"lose|lost|lost|luːz|🔍|to not find something; to not win|lose your temper;lose touch;lose your way|I ___ my phone on the bus.|We have ___ the match.",
-"meet|met|met|miːt|👋|to see and talk to someone|meet a deadline;meet halfway;meet new people|I ___ my best friend at school.|Have you ___ my sister?",
-"send|sent|sent|send|✉️|to make something go to another place|send a parcel;send an email;send regards|She ___ me a postcard from Rome.|I have ___ you the file.",
-"sleep|slept|slept|sliːp|😴|to rest with your eyes closed|sleep like a log;sleep on it;sleep in|I ___ for ten hours last night.|The baby has ___ all day.",
-"spend|spent|spent|spend|💸|to use money or time|spend money;spend a weekend;spend a fortune on|We ___ our holiday in Spain.|I have ___ all my money."]],
+"build|built|built|bɪld,bɪlt,bɪlt|🏗️|to make a house or other big thing|build a house;build a sandcastle;build a snowman|We ___ a snowman yesterday.|They have ___ a new school.",
+"dream|dreamt/dreamed|dreamt/dreamed|driːm,dremt,dremt|💤|to see pictures when you sleep|dream about the sea;dream at night;dream big|I ___ about the sea.|I have always ___ of a dog.",
+"feel|felt|felt|fiːl,felt,felt|❤️|to be happy, sad, tired, cold…|feel happy;feel tired;feel cold|I ___ happy yesterday.|I have never ___ so tired.",
+"keep|kept|kept|kiːp,kept,kept|🔐|to have and not give away|keep a secret;keep calm;keep the change|He ___ my secret.|She has ___ the letter for years.",
+"learn|learnt/learned|learnt/learned|lɜːn,lɜːnt,lɜːnt|🧠|to get to know something new|learn new words;learn to swim;learn to read|I ___ to swim at five.|What have you ___ today?",
+"leave|left|left|liːv,left,left|🚶|to go away from a place|leave home;leave school;leave a message|We ___ the party at ten.|The bus has ___.",
+"lend|lent|lent|lend,lent,lent|🤝|to give something for a short time|lend money;lend a pen;lend your bike|He ___ me his bike.|I have ___ her my pen.",
+"lose|lost|lost|luːz,lɒst,lɒst|🔍|to not find something; to not win|lose your keys;lose a game;lose your phone|I ___ my phone on the bus.|We have ___ the game.",
+"meet|met|met|miːt,met,met|👋|to see and talk to someone|meet a friend;meet new people;meet at the cafe|I ___ my best friend at school.|Have you ___ my sister?",
+"send|sent|sent|send,sent,sent|✉️|to make a letter or message go to someone|send a message;send an email;send a postcard|She ___ me a postcard.|I have ___ you an email.",
+"sleep|slept|slept|sliːp,slept,slept|😴|to rest at night with your eyes closed|sleep in a tent;sleep eight hours;sleep late|I ___ for ten hours.|The baby has ___ all day.",
+"spend|spent|spent|spend,spent,spent|💸|to use money or time|spend money;spend time;spend the weekend|We ___ our holiday at the sea.|I have ___ all my money."]],
 ["ABB","Вторая = третья","A – B – B","make – made – made",[
-"find|found|found|faɪnd|🔎|to see something you were looking for|find a job;find a solution;find out the truth|I ___ my keys under the sofa.|Have you ___ a new flat?",
-"get|got|got|ɡet|📦|to receive; to become|get married;get lost;get a present|I ___ a letter yesterday.|She has ___ a new job.",
-"have|had|had|hæv|🍽️|to own; to eat or drink|have breakfast;have a shower;have fun|We ___ a great time at the party.|I have ___ this car for five years.",
-"hear|heard|heard|hɪə|👂|to notice sounds|hear a noise;hear from someone;hear a rumour|I ___ a strange noise last night.|Have you ___ the news?",
-"lay|laid|laid|leɪ|🍳|to put something down carefully|lay the table;lay eggs;lay a carpet|She ___ the table for dinner.|The hen has ___ an egg.",
-"make|made|made|meɪk|🛠️|to create; to produce|make a decision;make a mistake;make a noise|I ___ a mistake in the test.|Have you ___ a decision?",
-"pay|paid|paid|peɪ|💳|to give money for something|pay attention;pay the bill;pay a visit|He ___ the bill and left.|Have you ___ for the tickets?",
-"say|said|said|seɪ|💬|to speak words|say hello;say sorry;say no|She ___ goodbye and left.|What has he ___ about it?",
-"sell|sold|sold|sel|🏷️|to give something for money|sell like hot cakes;sell out;sell online|They ___ their old car.|The tickets have ___ out.",
-"sit|sat|sat|sɪt|🪑|to rest on a chair|sit an exam;sit at the table;sit on the fence|We ___ in the garden all afternoon.|I have ___ here for an hour.",
-"stand|stood|stood|stænd|🧍|to be on your feet|stand in line;stand a chance;stand up for yourself|We ___ in the queue for an hour.|He has ___ by me all these years.",
-"tell|told|told|tel|🗣️|to give information to someone|tell a story;tell the truth;tell a lie|She ___ me a funny story.|Have you ___ him the truth?",
-"understand|understood|understood|ˌʌndəˈstænd|💡|to know the meaning of something|understand a joke;understand the rules;understand perfectly|Finally I ___ the rule.|Have you ___ the question?",
-"win|won|won|wɪn|🏆|to be first in a game or competition|win a prize;win a medal;win the lottery|Our team ___ the match.|She has ___ three medals."]],
+"find|found|found|faɪnd,faʊnd,faʊnd|🔎|to see something you looked for|find a job;find a seat;find your bag|I ___ my keys under the bed.|Have you ___ your phone?",
+"get|got|got|ɡet,ɡɒt,ɡɒt|📦|to receive; to become|get up;get dressed;get a letter|I ___ up at seven.|She has ___ a new job.",
+"have|had|had|hæv,hæd,hæd|🍽️|to own; to eat or drink|have breakfast;have a shower;have fun|We ___ a great time.|I have ___ lunch.",
+"hear|heard|heard|hɪə,hɜːd,hɜːd|👂|to get sounds with your ears|hear a noise;hear music;hear the birds|I ___ a noise at night.|Have you ___ the news?",
+"lay|laid|laid|leɪ,leɪd,leɪd|🍳|to put something down carefully|lay the table;lay eggs;lay it on the bed|She ___ the table for dinner.|The hen has ___ an egg.",
+"make|made|made|meɪk,meɪd,meɪd|🛠️|to create something|make a cake;make tea;make a mistake|I ___ a cake for Mum.|Have you ___ your bed?",
+"pay|paid|paid|peɪ,peɪd,peɪd|💳|to give money for something|pay the bill;pay by card;pay in cash|Dad ___ the bill.|Have you ___ for the tickets?",
+"read|read|read|riːd,red,red|📖|to look at words and understand them|read a book;read a story;read the news|I ___ a book yesterday.|Have you ___ this story?",
+"say|said|said|seɪ,sed,sed|💬|to speak words|say hello;say goodbye;say sorry|She ___ goodbye and left.|What has he ___?",
+"sell|sold|sold|sel,səʊld,səʊld|🏷️|to give something and get money|sell a car;sell fruit;sell tickets|They ___ their old car.|She has ___ her bike.",
+"sit|sat|sat|sɪt,sæt,sæt|🪑|to rest on a chair|sit down;sit on a chair;sit at the table|We ___ in the garden.|I have ___ here for an hour.",
+"stand|stood|stood|stænd,stʊd,stʊd|🧍|to be on your feet|stand up;stand in line;stand still|We ___ in the rain.|He has ___ there all day.",
+"tell|told|told|tel,təʊld,təʊld|🗣️|to say something to someone|tell a story;tell the truth;tell a joke|Grandma ___ me a story.|Have you ___ him the truth?",
+"understand|understood|understood|ˌʌndəˈstænd,ˌʌndəˈstʊd,ˌʌndəˈstʊd|💡|to know what something means|understand the question;understand the rules;understand everything|I ___ the question.|Have you ___ the rules?",
+"win|won|won|wɪn,wʌn,wʌn|🏆|to be first in a game|win a game;win a prize;win a race|Our team ___ the game.|She has ___ a prize."]],
 ["IAU","Звук i → a → u","i – a – u","sing – sang – sung",[
-"begin|began|begun|bɪˈɡɪn|🏁|to start|begin a new life;begin a journey;begin at nine|The film ___ at seven.|Has the lesson ___?",
-"drink|drank|drunk|drɪŋk|🥤|to take liquid into your mouth|drink water;drink a toast;drink tea|I ___ two cups of coffee this morning.|Have you ___ your tea?",
-"ring|rang|rung|rɪŋ|🔔|to make a bell sound; to phone|ring a bell;ring the doorbell;ring true|The phone ___ at midnight.|Has the bell ___?",
-"sing|sang|sung|sɪŋ|🎤|to make music with your voice|sing a song;sing along;sing in a choir|She ___ a beautiful song.|I have never ___ on stage.",
-"swim|swam|swum|swɪm|🏊|to move through water|swim in the sea;swim a mile;swim against the tide|We ___ in the lake yesterday.|Have you ever ___ in the ocean?"]],
+"begin|began|begun|bɪˈɡɪn,bɪˈɡæn,bɪˈɡʌn|🏁|to start|begin at nine;begin the lesson;begin a new book|The film ___ at seven.|The lesson has ___.",
+"drink|drank|drunk|drɪŋk,dræŋk,drʌŋk|🥤|to take water, juice or tea into your mouth|drink water;drink juice;drink coffee|I ___ two cups of coffee.|Have you ___ your juice?",
+"ring|rang|rung|rɪŋ,ræŋ,rʌŋ|🔔|to make a bell sound; to phone|ring a bell;ring the doorbell;ring a friend|The phone ___ at night.|Has the bell ___?",
+"sing|sang|sung|sɪŋ,sæŋ,sʌŋ|🎤|to make music with your voice|sing a song;sing in a choir;sing happy birthday|She ___ a song for me.|I have never ___ on stage.",
+"swim|swam|swum|swɪm,swæm,swʌm|🏊|to move in water|swim in the sea;swim in a pool;swim fast|We ___ in the lake.|Have you ever ___ in the sea?"]],
 ["ABA","Третья = первая","A – B – A","come – came – come",[
-"come|came|come|kʌm|🏠|to move towards here|come true;come back;come home|He ___ home late.|Spring has ___.",
-"become|became|become|bɪˈkʌm|🦋|to start to be|become famous;become a doctor;become an adult|She ___ a doctor in 2015.|It has ___ cold.",
-"run|ran|run|rʌn|🏃|to move fast on your feet|run a business;run a marathon;run late|I ___ five kilometres yesterday.|She has ___ this company for years."]],
+"come|came|come|kʌm,keɪm,kʌm|🏠|to move to here|come home;come back;come here|He ___ home late.|Summer has ___.",
+"become|became|become|bɪˈkʌm,bɪˈkeɪm,bɪˈkʌm|🦋|to start to be|become a doctor;become friends;become famous|She ___ a doctor.|It has ___ cold.",
+"run|ran|run|rʌn,ræn,rʌn|🏃|to move very fast on your feet|run fast;run a race;run to school|I ___ to the bus stop.|I have ___ five kilometres."]],
 ["EWN","-ew / -own / -orn","A – ew – own","grow – grew – grown",[
-"fly|flew|flown|flaɪ|✈️|to move through the air|fly a plane;fly a kite;fly abroad|We ___ to Rome last summer.|Have you ever ___ in a helicopter?",
-"grow|grew|grown|ɡrəʊ|🌱|to become bigger|grow vegetables;grow older;grow a beard|I ___ up in a small town.|The children have ___ so much!",
-"know|knew|known|nəʊ|🧩|to have information in your mind|know for sure;know by heart;know each other|I ___ the answer, but I forgot it.|I have ___ him for ten years.",
-"throw|threw|thrown|θrəʊ|🏐|to send something through the air with your hand|throw a party;throw a ball;throw away rubbish|He ___ the ball to me.|Have you ___ away the old shoes?",
-"wear|wore|worn|weə|👕|to have clothes on your body|wear glasses;wear a uniform;wear a smile|She ___ a red dress to the party.|I have never ___ this jacket."]],
+"fly|flew|flown|flaɪ,fluː,fləʊn|✈️|to move in the air|fly a kite;fly a plane;fly to Paris|We ___ to Rome in summer.|Have you ever ___ in a plane?",
+"grow|grew|grown|ɡrəʊ,ɡruː,ɡrəʊn|🌱|to get bigger|grow up;grow flowers;grow tall|I ___ up in a small town.|You have ___ so much!",
+"know|knew|known|nəʊ,njuː,nəʊn|🧩|to have something in your head|know the answer;know the way;know her name|I ___ the answer.|I have ___ him for ten years.",
+"throw|threw|thrown|θrəʊ,θruː,θrəʊn|🏐|to send something in the air with your hand|throw a stone;throw it away;throw a snowball|He ___ the ball to me.|Have you ___ away the old shoes?",
+"wear|wore|worn|weə,wɔː,wɔːn|👕|to have clothes on|wear a dress;wear glasses;wear jeans|She ___ a red dress.|I have never ___ this hat."]],
 ["OEN","Третья на -en","A – o – en","speak – spoke – spoken",[
-"break|broke|broken|breɪk|💔|to make something go into pieces|break the rules;break a record;break a leg|I ___ my favourite cup.|Who has ___ the window?",
-"choose|chose|chosen|tʃuːz|☝️|to pick one from many|choose carefully;choose between two options;choose a career|She ___ the blue dress.|Have you ___ a name for the puppy?",
-"speak|spoke|spoken|spiːk|🗨️|to say words; to talk|speak your mind;speak fluently;speak in public|He ___ to the manager yesterday.|Have you ___ to her?",
-"steal|stole|stolen|stiːl|🦹|to take something without permission|steal the show;steal a car;steal a kiss|Someone ___ my bike last night.|My wallet has been ___!",
-"wake|woke|woken|weɪk|⏰|to stop sleeping|wake up early;wake the baby;wake to the sound of rain|I ___ up at six today.|The noise has ___ the baby.",
-"forget|forgot|forgotten|fəˈɡet|🤷|to not remember|forget a name;forget about it;forget your password|I ___ my umbrella at home.|Have you ___ my birthday?",
-"write|wrote|written|raɪt|✍️|to put words on paper or a screen|write a letter;write down;write a novel|She ___ me a long letter.|He has ___ three books.",
-"drive|drove|driven|draɪv|🚗|to control a car|drive a car;drive someone crazy;drive to work|We ___ to the mountains.|Have you ever ___ a truck?"]],
+"break|broke|broken|breɪk,brəʊk,ˈbrəʊkən|💔|to make something go into pieces|break a cup;break your arm;break the rules|I ___ my cup.|Who has ___ the window?",
+"choose|chose|chosen|tʃuːz,tʃəʊz,ˈtʃəʊzn|☝️|to take one from many|choose a colour;choose a name;choose carefully|She ___ the blue dress.|Have you ___ a name for the cat?",
+"speak|spoke|spoken|spiːk,spəʊk,ˈspəʊkən|🗨️|to talk|speak English;speak slowly;speak on the phone|He ___ to the teacher.|Have you ___ to her?",
+"steal|stole|stolen|stiːl,stəʊl,ˈstəʊlən|🦹|to take something that is not yours|steal money;steal a bike;steal a wallet|Someone ___ my bike.|My bag has been ___!",
+"wake|woke|woken|weɪk,wəʊk,ˈwəʊkən|⏰|to stop sleeping|wake up;wake up early;wake the baby|I ___ up at six.|The noise has ___ the baby.",
+"forget|forgot|forgotten|fəˈɡet,fəˈɡɒt,fəˈɡɒtn|🤷|to not remember|forget a name;forget a birthday;forget your password|I ___ my umbrella.|Have you ___ my birthday?",
+"write|wrote|written|raɪt,rəʊt,ˈrɪtn|✍️|to put words on paper or a screen|write a letter;write an email;write your name|She ___ me a letter.|I have ___ an email.",
+"drive|drove|driven|draɪv,drəʊv,ˈdrɪvn|🚗|to make a car go|drive a car;drive to work;drive fast|We ___ to the sea.|Have you ever ___ a bus?"]],
 ["UNIQUE","Особые глаголы","свои формы","go – went – gone",[
-"be|was/were|been|biː|🌍|to exist; to have a quality|be careful;be on time;be in a hurry|I ___ at home yesterday.#was|Have you ever ___ to London?",
-"do|did|done|duː|✅|to perform an action|do homework;do your best;do the shopping|I ___ my homework in the evening.|Have you ___ the dishes?",
-"go|went|gone|ɡəʊ|🚀|to move from one place to another|go shopping;go to bed;go abroad|We ___ to the cinema on Friday.|She has ___ to work.",
-"see|saw|seen|siː|👀|to notice with your eyes|see a doctor;see you later;see the point|I ___ a great film yesterday.|Have you ___ my glasses?",
-"eat|ate|eaten|iːt|🍎|to put food in your mouth|eat out;eat breakfast;eat like a horse|We ___ pizza for dinner.|Have you ___ yet?",
-"fall|fell|fallen|fɔːl|🍂|to go down to the ground|fall asleep;fall in love;fall behind|He ___ off his bike.|Prices have ___ again.",
-"give|gave|given|ɡɪv|🎀|to put something into someone's hands|give advice;give up;give a speech|She ___ me a lovely present.|He has ___ me good advice.",
-"take|took|taken|teɪk|📸|to get with your hand; to use|take a photo;take a break;take a taxi|I ___ a lot of photos in Paris.|It has ___ me two hours.",
-"can|could|-|kæn|💪|to be able to|can afford;can swim;can help|I ___ swim when I was five.|"]]
+"be|was/were|been|biː,wɒz/wɜː,biːn|🌍|to exist; to be in a place or state|be happy;be late;be at home|I ___ at home yesterday.#was|Have you ever ___ to London?",
+"do|did|done|duː,dɪd,dʌn|✅|to make an action|do homework;do sport;do the dishes|I ___ my homework.|Have you ___ the dishes?",
+"go|went|gone|ɡəʊ,went,ɡɒn|🚀|to move to another place|go home;go to school;go shopping|We ___ to the cinema on Friday.|She has ___ to work.",
+"see|saw|seen|siː,sɔː,siːn|👀|to get pictures with your eyes|see a film;see the sea;see you later|I ___ a good film yesterday.|Have you ___ my glasses?",
+"eat|ate|eaten|iːt,eɪt,ˈiːtn|🍎|to put food in your mouth|eat breakfast;eat an apple;eat pizza|We ___ pizza for dinner.|Have you ___ lunch?",
+"fall|fell|fallen|fɔːl,fel,ˈfɔːlən|🍂|to go down to the ground|fall asleep;fall down;fall in love|He ___ off his bike.|The baby has ___ asleep.",
+"give|gave|given|ɡɪv,ɡeɪv,ˈɡɪvn|🎀|to put something in someone's hands|give a present;give a hug;give money|She ___ me a present.|He has ___ me his phone number.",
+"take|took|taken|teɪk,tʊk,ˈteɪkən|📸|to get something with your hand; to use|take a photo;take a taxi;take a break|I ___ a lot of photos in Paris.|Have you ___ your umbrella?",
+"can|could|-|kæn,kʊd,-|💪|to be able to|can swim;can help;can speak English|I ___ swim when I was five.|"]]
 ];
+// other verbs that ALSO make a correct collocation with these words (so they are never offered as wrong answers)
+const ALSO_RAW="ball:hit,catch,throw,kick|cake:make,buy,eat,bring,cut|tea:make,drink,have,buy|coffee:make,drink,have,buy|milk:drink,buy,bring|water:drink,bring,buy|breakfast:have,eat,make|lunch:have,eat,make,bring|happy:be,feel,become|tired:be,feel,get,become|cold:be,feel,get,catch,become|home:go,come,leave,get,run,drive,fly|friend:meet,bring,have,see,ring,become,find|friends:make,become,have,meet|present:give,buy,bring,get,choose,find,send|letter:write,send,get,read|email:write,send,get,read|message:write,send,get,read,leave|book:read,write,buy,bring,lend,find,choose|story:read,tell,write,hear|news:read,hear,see|ticket:buy,sell,get,find,lose|tickets:buy,sell,get,find,lose,bring|car:drive,buy,sell,steal,have|bike:lend,steal,buy,sell,have|money:spend,lose,find,lend,pay,get,give,steal,have,cost|window:shut,break|door:shut,break|keys:lose,find,forget,keep|name:write,know,choose,forget,say,tell|game:win,lose,choose|race:win,run,lose|answer:know,find,give,write,say,tell|english:speak,learn,teach,understand,read|fast:swim,run,drive,eat,fly|snowman:build,make|sandcastle:build,make|phone:lose,find,buy,sell|fish:catch,eat,buy,sell|film:see,choose,make|well:sleep,sing,swim,speak,eat,feel,know,read,write,drive|slowly:speak,drive,eat,run,swim,read,write|carefully:choose,drive,read,think,write,put|hard:think,hit,learn,run,throw|still:stand,sit,keep|tall:grow,be,become|famous:become,be,get|here:come,be,sit,stand,run,fly,put|back:come,go,run,fly,bring,give,get,drive,send|to school:go,run,drive,come,bring,fly|to work:go,come,run,fly|to paris:go,come,drive,run|homework:do,forget,bring,have|taxi:take,get,catch,drive|break:take,have|shower:have,take|noise:hear,make|music:hear,make,read,write|birds:hear,see|eggs:lay,eat,buy,sell,break,find|it on bed:lay,put,throw,leave,find,keep|bill:pay,get|fruit:sell,buy,eat,bring,cut,grow|on chair:sit,stand|at table:sit,eat,stand|joke:tell,hear,understand,read,make|truth:tell,know,find,hear,say|question:understand,hear,read,write|rules:understand,break,know,learn,read,teach,forget|everything:understand,know,see,hear,eat,forget,lose,read,say,tell,buy,sell,learn,do|prize:win,get,give|at nine:begin,come,go,meet,leave,get|lesson:begin,teach,have,learn,give|new book:begin,read,write,buy,bring,find,lend,choose,give,sell,get|juice:drink,buy,make,have|bell:ring,hear|doorbell:ring,hear|song:sing,hear,write,know,learn,choose|happy birthday:sing,say|in sea:swim,fall,be|in pool:swim,fall,be|doctor:become,be,see,meet|kite:fly,make,buy,build,sell|plane:fly,see,build,take,catch,get|flowers:grow,buy,sell,bring,give,cut,choose|way:know,find,lose,tell|stone:throw,find,hit|it away:throw,give,put,take,send|snowball:throw,make,hit|dress:wear,buy,choose,sell,make|glasses:wear,lose,find,break,buy|jeans:wear,buy,sell,choose|cup:break,buy,find,bring,give,drink|arm:break,hit,cut|colour:choose,know,see|on phone:speak,be|wallet:steal,lose,find,buy,keep|up early:wake,get|baby:wake,have,see,hear|birthday:forget,have,know|password:forget,know,lose,write|at home:be,sleep,sit,eat,keep,have|apple:eat,buy,cut,give,bring,throw|pizza:eat,make,buy,cut,have|in love:fall,be|hug:give,get|photo:take|umbrella:bring,take,forget,lose,find,buy|new shoes:buy,wear,sell,choose,find|bus:catch,take,get,drive|children:teach,have,see|class:teach,have,begin|about it:think,dream,forget,know,hear,read,tell,say|house:build,buy,sell,have,leave|about sea:dream,think,read,hear,write,tell|at night:dream,sleep,wake,come|secret:keep,tell,know|calm:keep,be|change:keep,give|new words:learn,teach,read,write,say,know,understand,hear|school:leave,begin|pen:lend,buy,find,lose,give,bring|new people:meet,see|at cafe:meet,be,sit,eat,have|postcard:send,write,get,buy,read|in tent:sleep,be,sit|eight hours:sleep,drive,fly|late:sleep,be,come|time:spend,have,take,lose,find|weekend:spend,have|job:find,get,have,lose,leave|seat:find,take|bag:find,lose,bring,buy,leave,put|it in bag:put,keep,leave,find,lay,throw|hair:cut|paper:cut,buy,throw|finger:cut,hit,break|head:hit|wall:hit,build|table:lay|sorry:say,be,feel|help:can|me help:let|swim:can|eyes:shut";
 const LEVELS=[], VERBS=[], BY={};
 RAW.forEach(([g,name,pat,ex,list],li)=>{
   const lv={id:li,g,name,pat,ex,verbs:[]};
   list.forEach(s=>{
-    const [v1,v2,v3,ipa,emo,def,col,ps,pp]=s.split("|");
+    const [v1,v2,v3,ipa0,emo,def,col,ps,pp]=s.split("|");const ipas=ipa0.split(","),ipa=ipas[0];
     const [pastS,pastAns]=ps.split("#");
-    const v={v1,v2:v2.split("/"),v3:v3==="-"?null:v3.split("/"),ipa,emo,def,col:col.split(";"),pastS,pastAns:pastAns?[pastAns]:null,perfS:pp||"",g,lv:li};
+    const v={v1,v2:v2.split("/"),v3:v3==="-"?null:v3.split("/"),ipa,ipas,emo,def,col:col.split(";"),pastS,pastAns:pastAns?[pastAns]:null,perfS:pp||"",g,lv:li};
     lv.verbs.push(v);VERBS.push(v);BY[v1]=v;
   });
   LEVELS.push(lv);
 });
 const FAMILY={AAA:1,OUGHT:2,TD:3,ABB:3,IAU:4,ABA:5,EWN:6,OEN:7,UNIQUE:0};
+// how the speech engine should pronounce forms that are spelt the same but sound different
+const SAYAS={read:{v2:"red",v3:"red"}};
+const spoken=(v,k)=>k==="v1"?v.v1:(SAYAS[v.v1]&&SAYAS[v.v1][k])||(k==="v2"?v.v2[0]:v.v3?v.v3[0]:"");
+// collocation keys: which verbs fit with a given object
+const restKey=r=>r.toLowerCase().replace(/\b(a|an|the|your|my|his|her|some)\b/g," ").replace(/\s+/g," ").trim();
+const COLL={};
+const addColl=(k,w)=>(COLL[k]=COLL[k]||new Set()).add(w);
+VERBS.forEach(v=>v.col.forEach(c=>addColl(restKey(c.slice(v.v1.length)),v.v1)));
+ALSO_RAW.split("|").forEach(p=>{const [k,vs]=p.split(":");vs.split(",").forEach(w=>addColl(restKey(k),w))});
+const sameSpellDiffSound=v=>v.ipas.length===3&&((v.v2[0]===v.v1&&v.ipas[1]!==v.ipas[0])||(v.v3&&v.v3[0]===v.v1&&v.ipas[2]!==v.ipas[0]));
 
 /* ============ STATE ============ */
 const tg=window.Telegram&&window.Telegram.WebApp&&window.Telegram.WebApp.initData!==undefined?window.Telegram.WebApp:null;
@@ -252,12 +268,17 @@ const shuf=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const norm=s=>s.trim().toLowerCase().replace(/\s+/g," ");
 const forms=v=>`${v.v1}<span class="sp">–</span>${v.v2.join(" / ")}<span class="sp">–</span>${v.v3?v.v3.join(" / "):"—"}`;
-const formsTxt=v=>`${v.v1}, ${v.v2.join(", ")}, ${v.v3?v.v3.join(", "):""}`;
+const formsTxt=v=>[spoken(v,"v1"),spoken(v,"v2"),spoken(v,"v3")].filter(Boolean).join(", ");
+const ipaLine=v=>v.ipas.map(i=>i==="-"?"—":`/${i}/`).join(" – ");
+const soundNote=v=>sameSpellDiffSound(v)?`<div class="note">✍️ пишется одинаково · 🔊 звучит по-разному: ${ipaLine(v)}</div>`:"";
 function haptic(t){try{tg&&tg.HapticFeedback&&(t==="ok"||t==="bad"?tg.HapticFeedback.notificationOccurred(t==="ok"?"success":"error"):tg.HapticFeedback.impactOccurred("light"))}catch(e){}}
 let voice=null;
-function pickVoice(){try{const vs=speechSynthesis.getVoices();voice=vs.find(v=>/en-GB/i.test(v.lang))||vs.find(v=>/^en/i.test(v.lang))||null}catch(e){}}
-try{speechSynthesis.onvoiceschanged=pickVoice;pickVoice()}catch(e){}
-function say(t){try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang="en-GB";if(voice)u.voice=voice;u.rate=S.rate;speechSynthesis.speak(u)}catch(e){}}
+function enVoices(){try{return speechSynthesis.getVoices().filter(v=>/^en[-_]/i.test(v.lang)||v.lang==="en")}catch(e){return[]}}
+function voiceScore(v){let s=0;if(/natural|neural|online|premium|enhanced/i.test(v.name))s+=10;if(/google/i.test(v.name))s+=6;
+  if(/samantha|daniel|serena|karen|moira|libby|sonia|ryan|aria|jenny|guy/i.test(v.name))s+=4;if(/en[-_]GB/i.test(v.lang))s+=2;if(/en[-_]US/i.test(v.lang))s+=1;return s}
+function pickVoice(){const vs=enVoices();voice=(S.voice&&vs.find(v=>v.name===S.voice))||vs.slice().sort((a,b)=>voiceScore(b)-voiceScore(a))[0]||null;
+  if(view&&view.s==="settings")settings()}
+function say(t){try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang=voice?voice.lang:"en-GB";if(voice)u.voice=voice;u.rate=S.rate;u.pitch=S.pitch||1;speechSynthesis.speak(u)}catch(e){}}
 window.say=say;
 const canSpeak=(()=>{try{return "speechSynthesis" in window}catch(e){return false}})();
 function regularEd(w){if(/e$/.test(w))return w+"d";if(/[^aeiou]y$/.test(w))return w.slice(0,-1)+"ied";return w+"ed"}
@@ -288,8 +309,8 @@ const GEN={
       <div class="q">${which==="v2"?"Past Simple (V2)?":"Past Participle (V3)?"}</div>`};
   },
   colloc(v){
-    const c=rnd(v.col),rest=c.slice(v.v1.length);
-    const others=shuf(VERBS.filter(x=>x!==v&&x.v1!=="can")).slice(0,3).map(x=>x.v1);
+    const c=rnd(v.col),rest=c.slice(v.v1.length),fit=COLL[restKey(rest)]||new Set();
+    const others=shuf(VERBS.filter(x=>x!==v&&x.v1!=="can"&&!fit.has(x.v1))).slice(0,3).map(x=>x.v1);
     return {kind:"choice",v,ans:[v.v1],opts:shuf([v.v1,...others]),extra:c,
       html:`<div class="q">Which verb makes the collocation?</div><div class="sent" style="margin-top:14px"><span class="gap">&nbsp;?&nbsp;</span>${esc(rest)}</div>`};
   },
@@ -311,12 +332,12 @@ const GEN={
       html:`<div class="emo">${v.emo}</div><div class="big">${v.v1}</div><div class="q">${esc(v.def)}</div>`};
   },
   listen(v){
-    const f=rnd([v.v1,v.v2[0],...(v.v3?[v.v3[0]]:[])]);
+    const k=rnd(["v1","v2",...(v.v3?["v3"]:[])]),f=spoken(v,k),fw=k==="v1"?v.v1:k==="v2"?v.v2[0]:v.v3[0];
     const others=shuf(VERBS.filter(x=>x!==v)).slice(0,3).map(x=>x.v1);
     return {kind:"choice",v,ans:[v.v1],opts:shuf([v.v1,...others]),speak:f,
       html:`<div class="q">Listen. Which verb is it? (choose V1)</div>
       <button class="say" style="width:84px;height:84px;font-size:36px;margin:16px auto;display:grid" onclick="say('${f}')">🔊</button>
-      ${canSpeak?"":`<div class="big">${f}</div>`}`};
+      ${canSpeak?"":`<div class="big">${fw}</div>`}`};
   },
   anagram(v){
     let cand=[...v.v2,...(v.v3||[])].filter(x=>x.length>=3&&x!==v.v1);
@@ -411,7 +432,7 @@ function verbSheet(w){
   const bg=document.createElement("div");bg.className="sheet-bg";bg.onclick=e=>{if(e.target===bg)bg.remove()};
   const hl=(s,a)=>esc(s).replace("___",`<b>${a}</b>`);
   bg.innerHTML=`<div class="sheet"><div style="text-align:center"><div style="font-size:50px">${v.emo}</div>
-  <div class="forms" style="font-size:24px">${forms(v)}</div><div class="muted">/${v.ipa}/ <button class="say" onclick="say('${formsTxt(v)}')">🔊</button></div>
+  <div class="forms" style="font-size:24px">${forms(v)}</div><div class="muted">${ipaLine(v)} <button class="say" onclick="say('${formsTxt(v)}')">🔊</button></div>${soundNote(v)}
   <p class="muted"><i>${esc(v.def)}</i></p></div>
   <b>Collocations</b><div class="coll">${v.col.map(c=>`<span onclick="say('${c.replace(/'/g,"\\'")}')">${esc(c)}</span>`).join("")}</div>
   <b>Examples</b><div class="ex">${hl(v.pastS,(v.pastAns||v.v2)[0])}</div>${v.perfS?`<div class="ex">${hl(v.perfS,v.v3[0])}</div>`:""}
@@ -421,15 +442,28 @@ function verbSheet(w){
 }
 function settings(){
   setBack(()=>go({s:"home"}));
+  const vs=enVoices().sort((a,b)=>a.lang.localeCompare(b.lang)||a.name.localeCompare(b.name));
+  const cur=voice?voice.name:"";
+  const flag=l=>/GB/i.test(l)?"🇬🇧":/US/i.test(l)?"🇺🇸":/AU/i.test(l)?"🇦🇺":/IE/i.test(l)?"🇮🇪":/IN/i.test(l)?"🇮🇳":/CA/i.test(l)?"🇨🇦":/ZA/i.test(l)?"🇿🇦":"🌐";
   app.innerHTML=`<div class="top"><button class="x" onclick="go({s:'home'})">←</button><b style="flex:1">Настройки</b></div>
-  <div class="card">
-    <div class="toggle"><span>Открыть все уровни</span><button class="sw ${S.unlockAll?"on":""}" onclick="S.unlockAll=!S.unlockAll;save();settings()"></button></div>
-    <div class="toggle"><span>Скорость озвучки</span><span><button class="vchip" onclick="S.rate=0.7;save();settings()" style="${S.rate==0.7?"outline:2px solid var(--accent)":""}">медленно</button> <button class="vchip" onclick="S.rate=0.9;save();settings()" style="${S.rate==0.9?"outline:2px solid var(--accent)":""}">обычно</button></span></div>
-    <div class="toggle"><span>Проверить звук</span><button class="say" onclick="say('go, went, gone')">🔊</button></div>
+  <div class="card"><h2>🔊 Озвучка</h2>
+    ${vs.length?`<div class="lbl">Голос (${vs.length} англ. голосов на этом устройстве)</div>
+    <select class="inp" id="vsel">${vs.map(v=>`<option value="${esc(v.name)}" ${v.name===cur?"selected":""}>${flag(v.lang)} ${esc(v.name.replace(/^Microsoft |^Google /,""))} · ${v.lang}</option>`).join("")}</select>
+    <div class="row" style="gap:8px;margin-bottom:6px"><button class="vchip" onclick="voiceStep(-1)">◀ пред.</button><button class="vchip" onclick="voiceStep(1)">след. ▶</button><button class="vchip" onclick="S.voice='';save();pickVoice();settings()">авто</button></div>`
+    :`<p class="muted small">Голоса ещё загружаются или на устройстве нет английских голосов. Нажми «Проверить» — список обновится.</p>`}
+    <div class="lbl" style="margin-top:10px">Скорость: <b id="rv">${S.rate}</b></div>
+    <input type="range" min="0.5" max="1.2" step="0.1" value="${S.rate}" oninput="S.rate=+this.value;$('#rv').textContent=this.value;save()">
+    <div class="lbl" style="margin-top:6px">Высота голоса: <b id="pv">${S.pitch||1}</b></div>
+    <input type="range" min="0.6" max="1.4" step="0.1" value="${S.pitch||1}" oninput="S.pitch=+this.value;$('#pv').textContent=this.value;save()">
+    <button class="btn" style="margin-top:12px" onclick="pickVoice();say('read, red, red. I read a book yesterday.')">▶ Проверить голос</button>
+    <p class="small muted">Голоса берутся из системы: на телефоне и компьютере набор разный. Самые живые обычно с пометкой Natural, Online или Google.</p>
   </div>
+  <div class="card"><div class="toggle"><span>Открыть все уровни</span><button class="sw ${S.unlockAll?"on":""}" onclick="S.unlockAll=!S.unlockAll;save();settings()"></button></div></div>
   <div class="card small muted">Прогресс уровня = сумма «знаний» по глаголам (0–5 за каждый). Верный ответ +1, ошибка −1. Карточки дают максимум 2 из 5 — дальше нужно вспоминать самому.</div>
   <button class="btn ghost" onclick="resetAsk(this)">Сбросить прогресс</button>`;
+  const sel=$("#vsel");if(sel)sel.onchange=()=>{S.voice=sel.value;save();pickVoice();say("Hello! go, went, gone.")};
 }
+function voiceStep(d){const sel=$("#vsel");if(!sel)return;sel.selectedIndex=(sel.selectedIndex+d+sel.options.length)%sel.options.length;sel.onchange()}
 function resetAsk(b){if(b.dataset.c){S.m={};S.xp=0;S.streak=0;S.best=0;save();go({s:"home"})}else{b.dataset.c=1;b.textContent="Нажми ещё раз, чтобы сбросить";b.style.color="var(--bad)"}}
 
 /* ============ SESSION ENGINE ============ */
@@ -510,7 +544,7 @@ function answer(q,good){
   if(good&&!q.speak)say(q.kind==="choice"&&q.ans[0]===v.v1&&q.extra&&!q.labels?q.extra:formsTxt(v));
   const fb=document.createElement("div");fb.className="fb "+(good?"good":"wrong");
   fb.innerHTML=`<div class="in"><div class="h">${good?rnd(["Great!","Correct!","Well done!","Exactly!"]):"Not quite"}</div>
-    <div class="forms">${v.emo} ${forms(v)} <button class="say" onclick="say('${formsTxt(v)}')">🔊</button></div>
+    <div class="forms">${v.emo} ${forms(v)} <button class="say" onclick="say('${formsTxt(v)}')">🔊</button></div><div class="muted small">${ipaLine(v)}</div>${soundNote(v)}
     ${q.extra?`<div class="muted small" style="margin:4px 0">${esc(q.extra)}</div>`:""}
     <div class="coll">${v.col.map(c=>`<span>${esc(c)}</span>`).join("")}</div>
     <button class="btn" id="nx" style="margin-top:8px">Дальше</button></div>`;
@@ -525,7 +559,7 @@ function renderFlash(q){
     <div class="face"><div class="emo">${v.emo}</div><div class="w">${v.v1}</div><div class="ipa">/${v.ipa}/</div><div class="def">${esc(v.def)}</div>
       <div class="small muted" style="margin-top:22px">Вспомни V2 и V3 — потом нажми на карточку</div></div>
     <div class="face back"><div class="emo" style="font-size:40px">${v.emo}</div>
-      <div class="grid3"><div><small>V1</small><b>${v.v1}</b></div><div><small>V2</small><b>${v.v2.join("/")}</b></div><div><small>V3</small><b>${v.v3?v.v3.join("/"):"—"}</b></div></div>
+      <div class="grid3"><div><small>V1</small><b>${v.v1}</b><i>/${v.ipas[0]}/</i></div><div><small>V2</small><b>${v.v2.join("/")}</b><i>/${v.ipas[1]}/</i></div><div><small>V3</small><b>${v.v3?v.v3.join("/"):"—"}</b><i>${v.v3?"/"+v.ipas[2]+"/":""}</i></div></div>${soundNote(v)}
       <div class="coll" style="justify-content:center">${v.col.map(c=>`<span>${esc(c)}</span>`).join("")}</div>
       <div class="ex small">${esc(v.pastS).replace("___",`<b>${(v.pastAns||v.v2)[0]}</b>`)}</div></div>
   </div></div>
@@ -590,6 +624,7 @@ function applyTgTheme(){try{if(!tg)return;tg.ready();tg.expand();const p=tg.them
   if(p.button_color)r.setProperty("--accent",p.button_color);
   if(tg.colorScheme==="dark"){r.setProperty("--chip","rgba(255,255,255,.07)");r.setProperty("--line","rgba(255,255,255,.12)")}}catch(e){}}
 load();applyTgTheme();cloudLoad();route();
+try{speechSynthesis.onvoiceschanged=pickVoice;pickVoice()}catch(e){}
 </script>
 </body>
 </html>
