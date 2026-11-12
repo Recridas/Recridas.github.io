@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Irregular Verbs Trainer</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+:root{
+  --bg:#f4f5fb; --card:#ffffff; --text:#1c1d29; --muted:#6b6f85; --line:#e3e5ef;
+  --accent:#5b5bf0; --accent2:#8a5cf6; --ok:#1fa96b; --bad:#e5484d; --warn:#f5a524;
+  --chip:#eef0fb; --shadow:0 2px 10px rgba(30,30,80,.07);
+}
+@media (prefers-color-scheme: dark){
+  :root{--bg:#12131a;--card:#1c1e29;--text:#eceef7;--muted:#9a9db3;--line:#2c2f3e;--chip:#262a3a;--shadow:none}
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Inter,sans-serif;font-size:16px}
+button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
+#app{max-width:520px;margin:0 auto;padding:14px 14px 40px;min-height:100vh}
+.row{display:flex;align-items:center;gap:10px}
+.between{justify-content:space-between}
+.muted{color:var(--muted)}
+.small{font-size:13px}
+.card{background:var(--card);border-radius:18px;padding:16px;box-shadow:var(--shadow);margin-bottom:12px}
+h1{font-size:22px;margin:4px 0 2px}
+h2{font-size:18px;margin:0 0 8px}
+.bar{height:10px;background:var(--line);border-radius:99px;overflow:hidden}
+.bar>i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:width .8s ease}
+.bar.big{height:14px}
+.pct{font-weight:700;font-variant-numeric:tabular-nums}
+.stats{display:flex;gap:8px;margin-top:12px}
+.stat{flex:1;background:var(--chip);border-radius:12px;padding:8px;text-align:center}
+.stat b{display:block;font-size:18px}
+.stat span{font-size:11px;color:var(--muted)}
+.btn{display:block;width:100%;padding:14px;border-radius:14px;background:linear-gradient(90deg,var(--accent),var(--accent2));color:#fff;font-weight:600;text-align:center}
+.btn.ghost{background:var(--chip);color:var(--text)}
+.btn:disabled{opacity:.45}
+.level{display:flex;gap:12px;align-items:center;padding:12px;border-radius:16px;background:var(--card);margin-bottom:10px;box-shadow:var(--shadow);width:100%;text-align:left}
+.level .num{width:42px;height:42px;border-radius:13px;background:var(--chip);display:grid;place-items:center;font-weight:700;flex:none}
+.level.done .num{background:var(--ok);color:#fff}
+.level.locked{opacity:.5}
+.level .info{flex:1;min-width:0}
+.level .t{font-weight:600}
+.level .s{font-size:12px;color:var(--muted);margin:2px 0 6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.path{position:relative;padding-left:4px}
+.modes{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.mode{background:var(--card);border-radius:16px;padding:14px 12px;text-align:left;box-shadow:var(--shadow)}
+.mode .e{font-size:24px}
+.mode .n{font-weight:600;margin-top:6px}
+.mode .d{font-size:12px;color:var(--muted);margin-top:2px}
+.mode.wide{grid-column:1/-1;display:flex;gap:12px;align-items:center}
+.verbs{display:flex;flex-wrap:wrap;gap:6px}
+.vchip{background:var(--chip);border-radius:10px;padding:6px 9px;font-size:14px}
+.dots{display:inline-flex;gap:2px;margin-left:5px;vertical-align:middle}
+.dots i{width:5px;height:5px;border-radius:50%;background:var(--line)}
+.dots i.on{background:var(--ok)}
+.rule{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border-radius:16px;padding:14px;margin-bottom:12px}
+.rule .p{font-size:20px;font-weight:700;letter-spacing:.5px}
+.top{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.x{width:34px;height:34px;border-radius:10px;background:var(--chip);font-size:18px;flex:none}
+.top .bar{flex:1}
+.prompt{text-align:center;padding:22px 10px}
+.prompt .emo{font-size:46px}
+.prompt .big{font-size:34px;font-weight:800;margin:6px 0}
+.prompt .q{font-size:15px;color:var(--muted)}
+.prompt .sent{font-size:21px;line-height:1.45;font-weight:500}
+.gap{display:inline-block;min-width:70px;border-bottom:3px solid var(--accent);color:var(--accent);font-weight:700}
+.opts{display:grid;gap:10px}
+.opt{background:var(--card);border:2px solid var(--line);border-radius:14px;padding:14px;font-size:18px;font-weight:600;box-shadow:var(--shadow)}
+.opt.ok{border-color:var(--ok);background:color-mix(in srgb,var(--ok) 14%,var(--card))}
+.opt.bad{border-color:var(--bad);background:color-mix(in srgb,var(--bad) 14%,var(--card))}
+.inp{width:100%;padding:14px;border-radius:14px;border:2px solid var(--line);background:var(--card);color:var(--text);font-size:20px;text-align:center;outline:none;margin-bottom:10px}
+.inp:focus{border-color:var(--accent)}
+.inp.ok{border-color:var(--ok)} .inp.bad{border-color:var(--bad)}
+.lbl{font-size:12px;color:var(--muted);margin:0 0 4px 4px}
+.fb{position:fixed;left:0;right:0;bottom:0;padding:16px 16px calc(16px + env(safe-area-inset-bottom));border-radius:20px 20px 0 0;background:var(--card);box-shadow:0 -6px 24px rgba(0,0,0,.12);transform:translateY(110%);transition:transform .25s ease;z-index:10}
+.fb.show{transform:none}
+.fb .in{max-width:520px;margin:0 auto}
+.fb .h{font-weight:700;font-size:18px;margin-bottom:6px}
+.fb.good .h{color:var(--ok)} .fb.wrong .h{color:var(--bad)}
+.forms{font-size:20px;font-weight:700;margin:4px 0}
+.forms .sp{color:var(--muted);font-weight:400;margin:0 6px}
+.say{display:inline-grid;place-items:center;width:32px;height:32px;border-radius:50%;background:var(--chip);font-size:15px;vertical-align:middle;margin-left:4px}
+.coll{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+.coll span{background:var(--chip);padding:5px 9px;border-radius:9px;font-size:14px}
+/* flashcard */
+.flip{perspective:1000px;height:330px;margin:10px 0 16px}
+.flip .inner{position:relative;width:100%;height:100%;transition:transform .5s;transform-style:preserve-3d}
+.flip.on .inner{transform:rotateY(180deg)}
+.face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;background:var(--card);border-radius:22px;box-shadow:var(--shadow);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;text-align:center}
+.face.back{transform:rotateY(180deg)}
+.face .emo{font-size:58px}
+.face .w{font-size:36px;font-weight:800;margin:8px 0 4px}
+.face .ipa{color:var(--muted)}
+.face .def{margin-top:10px;font-style:italic;color:var(--muted)}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;width:100%;margin:8px 0}
+.grid3 div{background:var(--chip);border-radius:12px;padding:10px 4px}
+.grid3 small{display:block;font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
+.grid3 b{font-size:17px}
+/* anagram */
+.slots{display:flex;justify-content:center;gap:6px;min-height:52px;margin:10px 0;flex-wrap:wrap}
+.slot{width:40px;height:48px;border-radius:10px;border-bottom:3px solid var(--accent);display:grid;place-items:center;font-size:24px;font-weight:700;background:var(--chip)}
+.tiles{display:flex;justify-content:center;gap:8px;flex-wrap:wrap}
+.tile{width:46px;height:50px;border-radius:12px;background:var(--card);box-shadow:var(--shadow);border:2px solid var(--line);font-size:22px;font-weight:700}
+.tile.used{opacity:.2;pointer-events:none}
+/* blitz */
+.timer{font-size:15px;font-weight:700;font-variant-numeric:tabular-nums;width:46px;text-align:right}
+.tf{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.tf button{padding:20px;border-radius:16px;font-size:20px;font-weight:700;color:#fff}
+.tf .no{background:var(--bad)} .tf .yes{background:var(--ok)}
+.trip{font-size:28px;font-weight:800;text-align:center;padding:40px 0}
+.flash-ok{animation:fo .35s} .flash-bad{animation:fbd .35s}
+@keyframes fo{50%{transform:scale(1.04);color:var(--ok)}}
+@keyframes fbd{25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+/* results */
+.res{text-align:center;padding:20px 0}
+.res .score{font-size:54px;font-weight:800}
+.mist{text-align:left}
+.mist div{padding:8px 0;border-bottom:1px solid var(--line)}
+.sheet-bg{position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:20;display:flex;align-items:flex-end}
+.sheet{background:var(--bg);width:100%;max-width:520px;margin:0 auto;border-radius:22px 22px 0 0;padding:18px 16px calc(24px + env(safe-area-inset-bottom));max-height:85vh;overflow:auto}
+.ex{font-size:15px;margin:6px 0;line-height:1.4}
+.ex b{color:var(--accent)}
+.toggle{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--line)}
+.sw{width:46px;height:28px;border-radius:99px;background:var(--line);position:relative;transition:.2s}
+.sw::after{content:"";position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:#fff;transition:.2s}
+.sw.on{background:var(--accent)} .sw.on::after{left:21px}
+.link{color:var(--accent);font-weight:600}
+.spacer{height:110px}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+/* ============ DATA ============
+ v1|v2|v3|ipa|emoji|definition|collocations;...|past sentence[#answer]|perfect sentence  */
+const RAW = [
+["AAA","Ничего не меняется","A – A – A","cut – cut – cut",[
+"cost|cost|cost|kɒst|💰|to have a price|cost a fortune;cost an arm and a leg;cost extra|The tickets ___ fifty dollars.|This trip has ___ us a fortune.",
+"cut|cut|cut|kʌt|✂️|to divide with a knife or scissors|cut your hair;cut the bread;cut costs|She ___ the cake into eight pieces.|Ouch! I have ___ my finger.",
+"hit|hit|hit|hɪt|🥊|to touch something hard and fast|hit the ball;hit the target;hit the road|He ___ the ball over the fence.|The storm has ___ the city.",
+"let|let|let|let|🚪|to allow|let me know;let somebody in;let it go|My parents ___ me stay up late.|They have never ___ us down.",
+"put|put|put|pʊt|📥|to move something to a place|put on a coat;put the kettle on;put pressure on|I ___ my keys on the table.|Have you ___ the milk in the fridge?",
+"shut|shut|shut|ʃʌt|🔒|to close|shut the door;shut your eyes;shut down the computer|He ___ the window because it was cold.|The shop has ___ for the night.",
+"read|read|read|riːd|📖|to look at words and understand them|read a novel;read aloud;read the news|I ___ an interesting article yesterday.|Have you ___ this book?"]],
+["OUGHT","Звук /ɔːt/","A – ought – ought","buy – bought – bought",[
+"bring|brought|brought|brɪŋ|🎁|to carry something to a place|bring luck;bring back memories;bring a friend along|She ___ a cake to the party.|What have you ___ for lunch?",
+"buy|bought|bought|baɪ|🛒|to get something by paying money|buy groceries;buy time;buy a round of drinks|We ___ a new car last month.|I have just ___ a ticket.",
+"catch|caught|caught|kætʃ|🎣|to take something that is moving|catch a cold;catch a bus;catch a fish|I ___ a cold last week.|Have you ever ___ a fish?",
+"teach|taught|taught|tiːtʃ|👩‍🏫|to help someone learn|teach a class;teach someone a lesson;teach maths|My father ___ me to swim.|She has ___ at this school for ten years.",
+"think|thought|thought|θɪŋk|💭|to use your mind|think twice;think outside the box;think it over|I ___ you were at home.|Have you ___ about my offer?"]],
+["TD","Окончание -t / -d","A – B – B (-t)","keep – kept – kept",[
+"build|built|built|bɪld|🏗️|to make a house or other structure|build a bridge;build trust;build a career|They ___ this bridge in 1990.|We have ___ a strong team.",
+"dream|dreamt/dreamed|dreamt/dreamed|driːm|💤|to see pictures in your sleep; to hope|dream big;dream of success;dream about the sea|I ___ about the sea last night.|She has always ___ of Paris.",
+"feel|felt|felt|fiːl|❤️|to have an emotion or sensation|feel sorry for;feel at home;feel tired|I ___ happy when I saw you.|I have never ___ so tired.",
+"keep|kept|kept|kiːp|🔐|to have and not give away; to continue|keep a secret;keep calm;keep a diary|He ___ his promise.|She has ___ this letter for years.",
+"learn|learnt/learned|learnt/learned|lɜːn|🧠|to get new knowledge or skills|learn by heart;learn from mistakes;learn to drive|I ___ to drive when I was 18.|What have you ___ today?",
+"leave|left|left|liːv|🚶|to go away from a place|leave home;leave a message;leave someone alone|We ___ the party at midnight.|The train has already ___.",
+"lend|lent|lent|lend|🤝|to give something for a short time|lend a hand;lend money;lend an ear|He ___ me his bike yesterday.|I have ___ her my notes.",
+"lose|lost|lost|luːz|🔍|to not find something; to not win|lose your temper;lose touch;lose your way|I ___ my phone on the bus.|We have ___ the match.",
+"meet|met|met|miːt|👋|to see and talk to someone|meet a deadline;meet halfway;meet new people|I ___ my best friend at school.|Have you ___ my sister?",
+"send|sent|sent|send|✉️|to make something go to another place|send a parcel;send an email;send regards|She ___ me a postcard from Rome.|I have ___ you the file.",
+"sleep|slept|slept|sliːp|😴|to rest with your eyes closed|sleep like a log;sleep on it;sleep in|I ___ for ten hours last night.|The baby has ___ all day.",
+"spend|spent|spent|spend|💸|to use money or time|spend money;spend a weekend;spend a fortune on|We ___ our holiday in Spain.|I have ___ all my money."]],
+["ABB","Вторая = третья","A – B – B","make – made – made",[
+"find|found|found|faɪnd|🔎|to see something you were looking for|find a job;find a solution;find out the truth|I ___ my keys under the sofa.|Have you ___ a new flat?",
+"get|got|got|ɡet|📦|to receive; to become|get married;get lost;get a present|I ___ a letter yesterday.|She has ___ a new job.",
+"have|had|had|hæv|🍽️|to own; to eat or drink|have breakfast;have a shower;have fun|We ___ a great time at the party.|I have ___ this car for five years.",
+"hear|heard|heard|hɪə|👂|to notice sounds|hear a noise;hear from someone;hear a rumour|I ___ a strange noise last night.|Have you ___ the news?",
+"lay|laid|laid|leɪ|🍳|to put something down carefully|lay the table;lay eggs;lay a carpet|She ___ the table for dinner.|The hen has ___ an egg.",
+"make|made|made|meɪk|🛠️|to create; to produce|make a decision;make a mistake;make a noise|I ___ a mistake in the test.|Have you ___ a decision?",
+"pay|paid|paid|peɪ|💳|to give money for something|pay attention;pay the bill;pay a visit|He ___ the bill and left.|Have you ___ for the tickets?",
+"say|said|said|seɪ|💬|to speak words|say hello;say sorry;say no|She ___ goodbye and left.|What has he ___ about it?",
+"sell|sold|sold|sel|🏷️|to give something for money|sell like hot cakes;sell out;sell online|They ___ their old car.|The tickets have ___ out.",
+"sit|sat|sat|sɪt|🪑|to rest on a chair|sit an exam;sit at the table;sit on the fence|We ___ in the garden all afternoon.|I have ___ here for an hour.",
+"stand|stood|stood|stænd|🧍|to be on your feet|stand in line;stand a chance;stand up for yourself|We ___ in the queue for an hour.|He has ___ by me all these years.",
+"tell|told|told|tel|🗣️|to give information to someone|tell a story;tell the truth;tell a lie|She ___ me a funny story.|Have you ___ him the truth?",
+"understand|understood|understood|ˌʌndəˈstænd|💡|to know the meaning of something|understand a joke;understand the rules;understand perfectly|Finally I ___ the rule.|Have you ___ the question?",
+"win|won|won|wɪn|🏆|to be first in a game or competition|win a prize;win a medal;win the lottery|Our team ___ the match.|She has ___ three medals."]],
+["IAU","Звук i → a → u","i – a – u","sing – sang – sung",[
+"begin|began|begun|bɪˈɡɪn|🏁|to start|begin a new life;begin a journey;begin at nine|The film ___ at seven.|Has the lesson ___?",
+"drink|drank|drunk|drɪŋk|🥤|to take liquid into your mouth|drink water;drink a toast;drink tea|I ___ two cups of coffee this morning.|Have you ___ your tea?",
+"ring|rang|rung|rɪŋ|🔔|to make a bell sound; to phone|ring a bell;ring the doorbell;ring true|The phone ___ at midnight.|Has the bell ___?",
+"sing|sang|sung|sɪŋ|🎤|to make music with your voice|sing a song;sing along;sing in a choir|She ___ a beautiful song.|I have never ___ on stage.",
+"swim|swam|swum|swɪm|🏊|to move through water|swim in the sea;swim a mile;swim against the tide|We ___ in the lake yesterday.|Have you ever ___ in the ocean?"]],
+["ABA","Третья = первая","A – B – A","come – came – come",[
+"come|came|come|kʌm|🏠|to move towards here|come true;come back;come home|He ___ home late.|Spring has ___.",
+"become|became|become|bɪˈkʌm|🦋|to start to be|become famous;become a doctor;become an adult|She ___ a doctor in 2015.|It has ___ cold.",
+"run|ran|run|rʌn|🏃|to move fast on your feet|run a business;run a marathon;run late|I ___ five kilometres yesterday.|She has ___ this company for years."]],
+["EWN","-ew / -own / -orn","A – ew – own","grow – grew – grown",[
+"fly|flew|flown|flaɪ|✈️|to move through the air|fly a plane;fly a kite;fly abroad|We ___ to Rome last summer.|Have you ever ___ in a helicopter?",
+"grow|grew|grown|ɡrəʊ|🌱|to become bigger|grow vegetables;grow older;grow a beard|I ___ up in a small town.|The children have ___ so much!",
+"know|knew|known|nəʊ|🧩|to have information in your mind|know for sure;know by heart;know each other|I ___ the answer, but I forgot it.|I have ___ him for ten years.",
+"throw|threw|thrown|θrəʊ|🏐|to send something through the air with your hand|throw a party;throw a ball;throw away rubbish|He ___ the ball to me.|Have you ___ away the old shoes?",
+"wear|wore|worn|weə|👕|to have clothes on your body|wear glasses;wear a uniform;wear a smile|She ___ a red dress to the party.|I have never ___ this jacket."]],
+["OEN","Третья на -en","A – o – en","speak – spoke – spoken",[
+"break|broke|broken|breɪk|💔|to make something go into pieces|break the rules;break a record;break a leg|I ___ my favourite cup.|Who has ___ the window?",
+"choose|chose|chosen|tʃuːz|☝️|to pick one from many|choose carefully;choose between two options;choose a career|She ___ the blue dress.|Have you ___ a name for the puppy?",
+"speak|spoke|spoken|spiːk|🗨️|to say words; to talk|speak your mind;speak fluently;speak in public|He ___ to the manager yesterday.|Have you ___ to her?",
+"steal|stole|stolen|stiːl|🦹|to take something without permission|steal the show;steal a car;steal a kiss|Someone ___ my bike last night.|My wallet has been ___!",
+"wake|woke|woken|weɪk|⏰|to stop sleeping|wake up early;wake the baby;wake to the sound of rain|I ___ up at six today.|The noise has ___ the baby.",
+"forget|forgot|forgotten|fəˈɡet|🤷|to not remember|forget a name;forget about it;forget your password|I ___ my umbrella at home.|Have you ___ my birthday?",
+"write|wrote|written|raɪt|✍️|to put words on paper or a screen|write a letter;write down;write a novel|She ___ me a long letter.|He has ___ three books.",
+"drive|drove|driven|draɪv|🚗|to control a car|drive a car;drive someone crazy;drive to work|We ___ to the mountains.|Have you ever ___ a truck?"]],
+["UNIQUE","Особые глаголы","свои формы","go – went – gone",[
+"be|was/were|been|biː|🌍|to exist; to have a quality|be careful;be on time;be in a hurry|I ___ at home yesterday.#was|Have you ever ___ to London?",
+"do|did|done|duː|✅|to perform an action|do homework;do your best;do the shopping|I ___ my homework in the evening.|Have you ___ the dishes?",
+"go|went|gone|ɡəʊ|🚀|to move from one place to another|go shopping;go to bed;go abroad|We ___ to the cinema on Friday.|She has ___ to work.",
+"see|saw|seen|siː|👀|to notice with your eyes|see a doctor;see you later;see the point|I ___ a great film yesterday.|Have you ___ my glasses?",
+"eat|ate|eaten|iːt|🍎|to put food in your mouth|eat out;eat breakfast;eat like a horse|We ___ pizza for dinner.|Have you ___ yet?",
+"fall|fell|fallen|fɔːl|🍂|to go down to the ground|fall asleep;fall in love;fall behind|He ___ off his bike.|Prices have ___ again.",
+"give|gave|given|ɡɪv|🎀|to put something into someone's hands|give advice;give up;give a speech|She ___ me a lovely present.|He has ___ me good advice.",
+"take|took|taken|teɪk|📸|to get with your hand; to use|take a photo;take a break;take a taxi|I ___ a lot of photos in Paris.|It has ___ me two hours.",
+"can|could|-|kæn|💪|to be able to|can afford;can swim;can help|I ___ swim when I was five.|"]]
+];
+const LEVELS=[], VERBS=[], BY={};
+RAW.forEach(([g,name,pat,ex,list],li)=>{
+  const lv={id:li,g,name,pat,ex,verbs:[]};
+  list.forEach(s=>{
+    const [v1,v2,v3,ipa,emo,def,col,ps,pp]=s.split("|");
+    const [pastS,pastAns]=ps.split("#");
+    const v={v1,v2:v2.split("/"),v3:v3==="-"?null:v3.split("/"),ipa,emo,def,col:col.split(";"),pastS,pastAns:pastAns?[pastAns]:null,perfS:pp||"",g,lv:li};
+    lv.verbs.push(v);VERBS.push(v);BY[v1]=v;
+  });
+  LEVELS.push(lv);
+});
+const FAMILY={AAA:1,OUGHT:2,TD:3,ABB:3,IAU:4,ABA:5,EWN:6,OEN:7,UNIQUE:0};
+
+/* ============ STATE ============ */
+const tg=window.Telegram&&window.Telegram.WebApp&&window.Telegram.WebApp.initData!==undefined?window.Telegram.WebApp:null;
+const KEY="irrverbs_v1";
+let S={m:{},xp:0,streak:0,last:"",best:0,unlockAll:false,rate:0.9,sessions:0};
+function load(){try{const j=localStorage.getItem(KEY);if(j)S=Object.assign(S,JSON.parse(j))}catch(e){}}
+function save(){const j=JSON.stringify(S);try{localStorage.setItem(KEY,j)}catch(e){}
+  try{if(tg&&tg.CloudStorage)tg.CloudStorage.setItem(KEY,j,()=>{})}catch(e){}}
+function cloudLoad(){try{if(tg&&tg.CloudStorage&&tg.initData){tg.CloudStorage.getItem(KEY,(err,val)=>{if(!err&&val){try{const c=JSON.parse(val);if((c.xp||0)>(S.xp||0)){S=Object.assign(S,c);save();route()}}catch(e){}}})}}catch(e){}}
+const sc=v=>S.m[v.v1]||0;
+function setSc(v,d,cap=5){S.m[v.v1]=Math.max(0,Math.min(cap,sc(v)+d))}
+function lvlPct(lv){return Math.round(lv.verbs.reduce((a,v)=>a+sc(v),0)/(lv.verbs.length*5)*100)}
+function allPct(){return Math.round(VERBS.reduce((a,v)=>a+sc(v),0)/(VERBS.length*5)*100)}
+function unlocked(i){return S.unlockAll||i===0||lvlPct(LEVELS[i-1])>=50}
+function mastered(){return VERBS.filter(v=>sc(v)>=5).length}
+function touchStreak(){const d=new Date().toISOString().slice(0,10);if(S.last===d)return;
+  const y=new Date(Date.now()-864e5).toISOString().slice(0,10);S.streak=S.last===y?S.streak+1:1;S.last=d}
+
+/* ============ HELPERS ============ */
+const $=s=>document.querySelector(s);
+const app=$("#app");
+const rnd=a=>a[Math.floor(Math.random()*a.length)];
+const shuf=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const norm=s=>s.trim().toLowerCase().replace(/\s+/g," ");
+const forms=v=>`${v.v1}<span class="sp">–</span>${v.v2.join(" / ")}<span class="sp">–</span>${v.v3?v.v3.join(" / "):"—"}`;
+const formsTxt=v=>`${v.v1}, ${v.v2.join(", ")}, ${v.v3?v.v3.join(", "):""}`;
+function haptic(t){try{tg&&tg.HapticFeedback&&(t==="ok"||t==="bad"?tg.HapticFeedback.notificationOccurred(t==="ok"?"success":"error"):tg.HapticFeedback.impactOccurred("light"))}catch(e){}}
+let voice=null;
+function pickVoice(){try{const vs=speechSynthesis.getVoices();voice=vs.find(v=>/en-GB/i.test(v.lang))||vs.find(v=>/^en/i.test(v.lang))||null}catch(e){}}
+try{speechSynthesis.onvoiceschanged=pickVoice;pickVoice()}catch(e){}
+function say(t){try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang="en-GB";if(voice)u.voice=voice;u.rate=S.rate;speechSynthesis.speak(u)}catch(e){}}
+window.say=say;
+const canSpeak=(()=>{try{return "speechSynthesis" in window}catch(e){return false}})();
+function regularEd(w){if(/e$/.test(w))return w+"d";if(/[^aeiou]y$/.test(w))return w.slice(0,-1)+"ied";return w+"ed"}
+function fakes(v,which){ // wrong but plausible forms
+  const ok=new Set((which==="v2"?v.v2:v.v3||[]).map(norm));
+  const c=[regularEd(v.v1),v.v1,...v.v2,...(v.v3||[])];
+  const vow=v.v1.replace(/i(?=[nm])/,"a"),vow2=v.v1.replace(/i(?=[nm])/,"u");
+  c.push(vow,vow2,v.v1+"en",(v.v2[0])+"en",v.v1.replace(/ee/,"e")+"t");
+  // forms of a same-group neighbour
+  const nb=LEVELS[v.lv].verbs.filter(x=>x!==v);if(nb.length){const n=rnd(nb);c.push(...n.v2,...(n.v3||[]))}
+  return shuf([...new Set(c.map(norm))].filter(x=>x&&!ok.has(x)));
+}
+function pickVerbs(pool,n){ // weight towards weak words
+  const w=pool.map(v=>({v,k:Math.random()*(6-sc(v))+Math.random()}));
+  w.sort((a,b)=>b.k-a.k);const out=[];let i=0;while(out.length<n&&pool.length){out.push(w[i%w.length].v);i++}
+  return out;
+}
+function setBack(fn){try{if(!tg)return;tg.BackButton.offClick(window._bk||(()=>{}));if(fn){window._bk=fn;tg.BackButton.onClick(fn);tg.BackButton.show()}else tg.BackButton.hide()}catch(e){}}
+
+/* ============ QUESTION GENERATORS ============ */
+const GEN={
+  form(v){
+    const which=v.v3&&Math.random()<.5?"v3":"v2";
+    const ans=which==="v2"?v.v2:v.v3;
+    const opts=shuf([ans[0],...fakes(v,which).slice(0,3)]);
+    return {kind:"choice",v,ans,opts,
+      html:`<div class="emo">${v.emo}</div><div class="big">${v.v1} <button class="say" onclick="say('${v.v1}')">🔊</button></div>
+      <div class="q">${which==="v2"?"Past Simple (V2)?":"Past Participle (V3)?"}</div>`};
+  },
+  colloc(v){
+    const c=rnd(v.col),rest=c.slice(v.v1.length);
+    const others=shuf(VERBS.filter(x=>x!==v&&x.v1!=="can")).slice(0,3).map(x=>x.v1);
+    return {kind:"choice",v,ans:[v.v1],opts:shuf([v.v1,...others]),extra:c,
+      html:`<div class="q">Which verb makes the collocation?</div><div class="sent" style="margin-top:14px"><span class="gap">&nbsp;?&nbsp;</span>${esc(rest)}</div>`};
+  },
+  context(v){
+    const usePerf=v.perfS&&Math.random()<.5;
+    const s=usePerf?v.perfS:v.pastS, ans=usePerf?v.v3:(v.pastAns||v.v2);
+    return {kind:"type",v,ans,
+      html:`<div class="q">Put the verb in the correct form</div><div class="sent" style="margin-top:14px">${esc(s).replace("___",'<span class="gap">&nbsp;</span>')}</div><div class="q" style="margin-top:10px">(${v.v1}) ${v.emo}</div>`};
+  },
+  context_choice(v){
+    const usePerf=v.perfS&&Math.random()<.5;
+    const s=usePerf?v.perfS:v.pastS, ans=usePerf?v.v3:(v.pastAns||v.v2);
+    const opts=shuf([ans[0],...fakes(v,usePerf?"v3":"v2").slice(0,3)]);
+    return {kind:"choice",v,ans,opts,
+      html:`<div class="sent">${esc(s).replace("___",'<span class="gap">&nbsp;</span>')}</div><div class="q" style="margin-top:10px">(${v.v1})</div>`};
+  },
+  type2(v){
+    return {kind:"type2",v,
+      html:`<div class="emo">${v.emo}</div><div class="big">${v.v1}</div><div class="q">${esc(v.def)}</div>`};
+  },
+  listen(v){
+    const f=rnd([v.v1,v.v2[0],...(v.v3?[v.v3[0]]:[])]);
+    const others=shuf(VERBS.filter(x=>x!==v)).slice(0,3).map(x=>x.v1);
+    return {kind:"choice",v,ans:[v.v1],opts:shuf([v.v1,...others]),speak:f,
+      html:`<div class="q">Listen. Which verb is it? (choose V1)</div>
+      <button class="say" style="width:84px;height:84px;font-size:36px;margin:16px auto;display:grid" onclick="say('${f}')">🔊</button>
+      ${canSpeak?"":`<div class="big">${f}</div>`}`};
+  },
+  anagram(v){
+    let cand=[...v.v2,...(v.v3||[])].filter(x=>x.length>=3&&x!==v.v1);
+    if(!cand.length)cand=[v.v2[0]];
+    const w=rnd(cand),which=v.v2.includes(w)?"Past Simple":"Past Participle";
+    let letters=shuf(w.split(""));if(letters.join("")===w&&w.length>2)letters=shuf(letters);
+    return {kind:"anagram",v,word:w,letters,
+      html:`<div class="emo">${v.emo}</div><div class="big">${v.v1}</div><div class="q">Build the ${which}</div>`};
+  },
+  odd(v){
+    const fam=FAMILY[v.g];
+    let base=fam?v:rnd(VERBS.filter(x=>FAMILY[x.g]));
+    const same=shuf(VERBS.filter(x=>x.g===base.g&&x!==base&&x.v3)).slice(0,2);
+    const group=[base,...same];
+    const odd=rnd(VERBS.filter(x=>FAMILY[x.g]&&FAMILY[x.g]!==FAMILY[base.g]&&x.v3));
+    const all=shuf([...group,odd]);
+    const L=LEVELS[base.lv],LO=LEVELS[odd.lv];
+    return {kind:"choice",v:odd,ans:[odd.v1],opts:all.map(x=>x.v1),labels:Object.fromEntries(all.map(x=>[x.v1,`${x.v1} – ${x.v2[0]} – ${x.v3[0]}`])),
+      extra:`Pattern «${L.pat}» vs «${LO.pat}»`,
+      html:`<div class="q">Odd one out: which verb follows a different pattern?</div>`};
+  }
+};
+const MODES={
+  cards:{e:"🃏",n:"Карточки",d:"Знакомство: форма, звук, смысл"},
+  form:{e:"🎯",n:"Квиз форм",d:"Выбери V2 или V3"},
+  colloc:{e:"🧩",n:"Коллокации",d:"Какой глагол подходит?"},
+  context:{e:"📝",n:"В контексте",d:"Впиши форму в предложение"},
+  type2:{e:"⌨️",n:"Напиши формы",d:"V2 и V3 по памяти"},
+  listen:{e:"🎧",n:"На слух",d:"Узнай глагол по звуку"},
+  anagram:{e:"🔤",n:"Собери слово",d:"Буквы → форма глагола"},
+  odd:{e:"🕵️",n:"Найди лишний",d:"Звуковые группы"},
+  blitz:{e:"⚡",n:"Блиц 60 сек",d:"Верно или нет — на скорость"},
+  mix:{e:"🎲",n:"Микс",d:"Все типы вперемешку"}
+};
+
+/* ============ SCREENS ============ */
+let view={s:"home"};
+function go(v){view=v;route();window.scrollTo(0,0)}
+function route(){
+  if(view.s==="home")home();else if(view.s==="level")level(view.i);else if(view.s==="settings")settings();
+}
+function home(){
+  setBack(null);
+  const p=allPct();
+  let h=`<div class="card">
+    <div class="row between"><div><div class="muted small">Irregular Verbs</div><h1>Твой прогресс</h1></div><button class="x" onclick="go({s:'settings'})">⚙️</button></div>
+    <div class="row between" style="margin:10px 0 6px"><span class="small muted">Все уровни · ${VERBS.length} глаголов</span><span class="pct">${p}%</span></div>
+    <div class="bar big"><i style="width:${p}%"></i></div>
+    <div class="stats">
+      <div class="stat"><b>🔥 ${S.streak}</b><span>дней подряд</span></div>
+      <div class="stat"><b>⭐ ${S.xp}</b><span>опыт XP</span></div>
+      <div class="stat"><b>✅ ${mastered()}</b><span>выучено</span></div>
+    </div></div>
+  <div class="modes" style="margin-bottom:14px">
+    <button class="mode wide" onclick="startReview()"><span class="e">🔁</span><span><div class="n">Повторение</div><div class="d">Самые слабые слова из открытых уровней</div></span></button>
+    <button class="mode" onclick="startBlitz(null)"><div class="e">⚡</div><div class="n">Блиц</div><div class="d">Рекорд: ${S.best}</div></button>
+    <button class="mode" onclick="startSession('odd',null)"><div class="e">🕵️</div><div class="n">Найди лишний</div><div class="d">Все группы</div></button>
+  </div>
+  <h2>Уровни</h2><div class="path">`;
+  LEVELS.forEach((lv,i)=>{
+    const pc=lvlPct(lv),un=unlocked(i);
+    h+=`<button class="level ${pc>=100?"done":""} ${un?"":"locked"}" onclick="${un?`go({s:'level',i:${i}})`:`lockedMsg(${i})`}">
+      <div class="num">${pc>=100?"✓":un?i+1:"🔒"}</div>
+      <div class="info"><div class="row between"><span class="t">${lv.name}</span><span class="pct small">${pc}%</span></div>
+      <div class="s">${lv.pat} · ${lv.ex}</div><div class="bar"><i style="width:${pc}%"></i></div></div></button>`;
+  });
+  h+=`</div><p class="small muted" style="text-align:center">Следующий уровень открывается на 50% предыдущего</p>`;
+  app.innerHTML=h;
+}
+function lockedMsg(i){haptic();const t=`Доведи «${LEVELS[i-1].name}» до 50%, чтобы открыть этот уровень.`;
+  try{if(tg&&tg.showAlert){tg.showAlert(t);return}}catch(e){}toast(t)}
+function toast(t){const d=document.createElement("div");d.className="card";d.style.cssText="position:fixed;left:16px;right:16px;bottom:20px;z-index:30;max-width:488px;margin:0 auto";d.textContent=t;document.body.appendChild(d);setTimeout(()=>d.remove(),2200)}
+function dots(v){let s='<span class="dots">';for(let i=0;i<5;i++)s+=`<i class="${i<sc(v)?"on":""}"></i>`;return s+"</span>"}
+function level(i){
+  const lv=LEVELS[i],pc=lvlPct(lv);
+  setBack(()=>go({s:"home"}));
+  let h=`<div class="top"><button class="x" onclick="go({s:'home'})">←</button><div style="flex:1"><div class="small muted">Уровень ${i+1}</div><b>${lv.name}</b></div><span class="pct">${pc}%</span></div>
+  <div class="rule"><div class="small" style="opacity:.85">Модель</div><div class="p">${lv.pat}</div><div style="opacity:.9">${lv.ex}</div>
+  <div class="bar" style="margin-top:10px;background:rgba(255,255,255,.3)"><i style="width:${pc}%;background:#fff"></i></div></div>
+  <div class="card"><div class="row between" style="margin-bottom:8px"><b>Глаголы</b><span class="small muted">нажми, чтобы открыть</span></div><div class="verbs">`;
+  lv.verbs.forEach(v=>h+=`<button class="vchip" onclick="verbSheet('${v.v1}')">${v.emo} ${v.v1}${dots(v)}</button>`);
+  h+=`</div></div><div class="modes">`;
+  Object.entries(MODES).forEach(([k,m])=>{
+    const wide=k==="mix";
+    h+=`<button class="mode ${wide?"wide":""}" onclick="${k==="blitz"?`startBlitz(${i})`:`startSession('${k}',${i})`}">${wide?`<span class="e">${m.e}</span><span><div class="n">${m.n}</div><div class="d">${m.d}</div></span>`:`<div class="e">${m.e}</div><div class="n">${m.n}</div><div class="d">${m.d}</div>`}</button>`;
+  });
+  h+=`</div>`;
+  app.innerHTML=h;
+}
+function verbSheet(w){
+  const v=BY[w];haptic();
+  const bg=document.createElement("div");bg.className="sheet-bg";bg.onclick=e=>{if(e.target===bg)bg.remove()};
+  const hl=(s,a)=>esc(s).replace("___",`<b>${a}</b>`);
+  bg.innerHTML=`<div class="sheet"><div style="text-align:center"><div style="font-size:50px">${v.emo}</div>
+  <div class="forms" style="font-size:24px">${forms(v)}</div><div class="muted">/${v.ipa}/ <button class="say" onclick="say('${formsTxt(v)}')">🔊</button></div>
+  <p class="muted"><i>${esc(v.def)}</i></p></div>
+  <b>Collocations</b><div class="coll">${v.col.map(c=>`<span onclick="say('${c.replace(/'/g,"\\'")}')">${esc(c)}</span>`).join("")}</div>
+  <b>Examples</b><div class="ex">${hl(v.pastS,(v.pastAns||v.v2)[0])}</div>${v.perfS?`<div class="ex">${hl(v.perfS,v.v3[0])}</div>`:""}
+  <div class="row small muted" style="margin-top:10px">Знание: ${dots(v)}</div>
+  <button class="btn ghost" style="margin-top:14px" onclick="this.closest('.sheet-bg').remove()">Закрыть</button></div>`;
+  document.body.appendChild(bg);
+}
+function settings(){
+  setBack(()=>go({s:"home"}));
+  app.innerHTML=`<div class="top"><button class="x" onclick="go({s:'home'})">←</button><b style="flex:1">Настройки</b></div>
+  <div class="card">
+    <div class="toggle"><span>Открыть все уровни</span><button class="sw ${S.unlockAll?"on":""}" onclick="S.unlockAll=!S.unlockAll;save();settings()"></button></div>
+    <div class="toggle"><span>Скорость озвучки</span><span><button class="vchip" onclick="S.rate=0.7;save();settings()" style="${S.rate==0.7?"outline:2px solid var(--accent)":""}">медленно</button> <button class="vchip" onclick="S.rate=0.9;save();settings()" style="${S.rate==0.9?"outline:2px solid var(--accent)":""}">обычно</button></span></div>
+    <div class="toggle"><span>Проверить звук</span><button class="say" onclick="say('go, went, gone')">🔊</button></div>
+  </div>
+  <div class="card small muted">Прогресс уровня = сумма «знаний» по глаголам (0–5 за каждый). Верный ответ +1, ошибка −1. Карточки дают максимум 2 из 5 — дальше нужно вспоминать самому.</div>
+  <button class="btn ghost" onclick="resetAsk(this)">Сбросить прогресс</button>`;
+}
+function resetAsk(b){if(b.dataset.c){S.m={};S.xp=0;S.streak=0;S.best=0;save();go({s:"home"})}else{b.dataset.c=1;b.textContent="Нажми ещё раз, чтобы сбросить";b.style.color="var(--bad)"}}
+
+/* ============ SESSION ENGINE ============ */
+let SES=null;
+function startReview(){
+  const pool=VERBS.filter(v=>unlocked(v.lv));
+  const weak=pool.slice().sort((a,b)=>sc(a)-sc(b)+Math.random()*1.5-.75).slice(0,10);
+  runSession("mix",weak,null);
+}
+function startSession(mode,li){
+  const pool=li===null?VERBS.filter(v=>unlocked(v.lv)):LEVELS[li].verbs;
+  const n=mode==="cards"?Math.min(pool.length,12):10;
+  let vs=mode==="cards"?shuf(pool).slice(0,n):pickVerbs(shuf(pool),n);
+  runSession(mode,vs,li);
+}
+function makeQ(mode,v){
+  if(mode==="mix")mode=rnd(["form","colloc","context","context_choice","type2","listen","anagram"]);
+  if(mode==="context"&&!v.perfS&&!v.pastS)mode="form";
+  if(mode==="listen"&&!canSpeak)mode="form";
+  return GEN[mode](v);
+}
+function runSession(mode,vs,li){
+  touchStreak();
+  const before=li===null?allPct():lvlPct(LEVELS[li]);
+  SES={mode,li,queue:vs.map(v=>mode==="cards"?{kind:"flash",v}:makeQ(mode,v)),i:0,ok:0,total:vs.length,mist:[],xp:0,before,retried:new Set()};
+  setBack(()=>endSession(true));
+  renderQ();
+}
+function topBar(){const p=Math.round(SES.i/SES.queue.length*100);
+  return `<div class="top"><button class="x" onclick="endSession(true)">✕</button><div class="bar"><i style="width:${p}%"></i></div><span class="small muted">${Math.min(SES.i+1,SES.queue.length)}/${SES.queue.length}</span></div>`}
+function renderQ(){
+  if(SES.i>=SES.queue.length)return endSession(false);
+  const q=SES.queue[SES.i];
+  if(q.kind==="flash")return renderFlash(q);
+  let h=topBar()+`<div class="prompt">${q.html}</div>`;
+  if(q.kind==="choice"){h+=`<div class="opts">${q.opts.map(o=>`<button class="opt" data-o="${esc(o)}">${esc(q.labels?q.labels[o]:o)}</button>`).join("")}</div>`}
+  if(q.kind==="type"){h+=`<input class="inp" id="a1" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="type here…"><button class="btn" id="chk">Проверить</button>`}
+  if(q.kind==="type2"){h+=`<div class="lbl">Past Simple (V2)</div><input class="inp" id="a1" autocomplete="off" autocapitalize="off" spellcheck="false">
+    ${q.v.v3?`<div class="lbl">Past Participle (V3)</div><input class="inp" id="a2" autocomplete="off" autocapitalize="off" spellcheck="false">`:""}<button class="btn" id="chk">Проверить</button>`}
+  if(q.kind==="anagram"){h+=`<div class="slots" id="slots">${q.word.split("").map(()=>`<div class="slot"></div>`).join("")}</div>
+    <div class="tiles">${q.letters.map((l,k)=>`<button class="tile" data-k="${k}">${l}</button>`).join("")}</div>
+    <div class="row" style="justify-content:center;margin-top:14px"><button class="vchip" id="undo">⌫ стереть</button></div>`}
+  h+=`<div class="spacer"></div>`;
+  app.innerHTML=h;
+  if(q.speak)setTimeout(()=>say(q.speak),250);
+  if(q.kind==="choice")app.querySelectorAll(".opt").forEach(b=>b.onclick=()=>{
+    if(SES.lock)return;SES.lock=1;const o=b.dataset.o,good=q.ans.map(norm).includes(norm(o));
+    b.classList.add(good?"ok":"bad");
+    if(!good)app.querySelectorAll(".opt").forEach(x=>{if(q.ans.map(norm).includes(norm(x.dataset.o)))x.classList.add("ok")});
+    answer(q,good);
+  });
+  if(q.kind==="type"||q.kind==="type2"){
+    const a1=$("#a1"),a2=$("#a2");a1.focus();
+    const check=()=>{if(SES.lock)return;
+      let good;
+      if(q.kind==="type"){good=q.ans.map(norm).includes(norm(a1.value));a1.classList.add(good?"ok":"bad")}
+      else{const g1=q.v.v2.map(norm).includes(norm(a1.value)),g2=!a2||q.v.v3.map(norm).includes(norm(a2.value));
+        a1.classList.add(g1?"ok":"bad");a2&&a2.classList.add(g2?"ok":"bad");good=g1&&g2}
+      SES.lock=1;answer(q,good)};
+    $("#chk").onclick=check;
+    [a1,a2].forEach((el,k)=>el&&(el.onkeydown=e=>{if(e.key==="Enter"){if(k===0&&a2&&!a2.value)a2.focus();else check()}}));
+  }
+  if(q.kind==="anagram"){
+    let built=[];const slots=[...app.querySelectorAll(".slot")];
+    const draw=()=>slots.forEach((s,k)=>s.textContent=built[k]?built[k].l:"");
+    app.querySelectorAll(".tile").forEach(t=>t.onclick=()=>{if(SES.lock)return;haptic();t.classList.add("used");built.push({l:t.textContent,t});draw();
+      if(built.length===q.word.length){const w=built.map(b=>b.l).join(""),good=w===q.word;SES.lock=1;
+        $("#slots").classList.add(good?"flash-ok":"flash-bad");answer(q,good)}});
+    $("#undo").onclick=()=>{if(SES.lock)return;const b=built.pop();if(b){b.t.classList.remove("used");draw()}};
+  }
+}
+function answer(q,good){
+  const v=q.v;haptic(good?"ok":"bad");
+  if(good){SES.ok++;SES.xp+=10;setSc(v,+1)}
+  else{setSc(v,-1);SES.mist.push(v);
+    if(!SES.retried.has(v.v1)&&SES.mode!=="odd"){SES.retried.add(v.v1);SES.queue.push(makeQ(SES.mode==="mix"?"mix":SES.mode,v))}}
+  save();
+  if(good&&!q.speak)say(q.kind==="choice"&&q.ans[0]===v.v1&&q.extra&&!q.labels?q.extra:formsTxt(v));
+  const fb=document.createElement("div");fb.className="fb "+(good?"good":"wrong");
+  fb.innerHTML=`<div class="in"><div class="h">${good?rnd(["Great!","Correct!","Well done!","Exactly!"]):"Not quite"}</div>
+    <div class="forms">${v.emo} ${forms(v)} <button class="say" onclick="say('${formsTxt(v)}')">🔊</button></div>
+    ${q.extra?`<div class="muted small" style="margin:4px 0">${esc(q.extra)}</div>`:""}
+    <div class="coll">${v.col.map(c=>`<span>${esc(c)}</span>`).join("")}</div>
+    <button class="btn" id="nx" style="margin-top:8px">Дальше</button></div>`;
+  document.body.appendChild(fb);requestAnimationFrame(()=>fb.classList.add("show"));
+  const next=()=>{fb.remove();SES.lock=0;SES.i++;renderQ()};
+  fb.querySelector("#nx").onclick=next;
+  setTimeout(()=>{const n=fb.querySelector("#nx");n&&n.focus()},50);
+}
+function renderFlash(q){
+  const v=q.v;
+  app.innerHTML=topBar()+`<div class="flip" id="fl"><div class="inner">
+    <div class="face"><div class="emo">${v.emo}</div><div class="w">${v.v1}</div><div class="ipa">/${v.ipa}/</div><div class="def">${esc(v.def)}</div>
+      <div class="small muted" style="margin-top:22px">Вспомни V2 и V3 — потом нажми на карточку</div></div>
+    <div class="face back"><div class="emo" style="font-size:40px">${v.emo}</div>
+      <div class="grid3"><div><small>V1</small><b>${v.v1}</b></div><div><small>V2</small><b>${v.v2.join("/")}</b></div><div><small>V3</small><b>${v.v3?v.v3.join("/"):"—"}</b></div></div>
+      <div class="coll" style="justify-content:center">${v.col.map(c=>`<span>${esc(c)}</span>`).join("")}</div>
+      <div class="ex small">${esc(v.pastS).replace("___",`<b>${(v.pastAns||v.v2)[0]}</b>`)}</div></div>
+  </div></div>
+  <div class="row" id="fbtn" style="visibility:hidden"><button class="btn ghost" id="no">🔁 Ещё учу</button><button class="btn" id="yes">✅ Знаю</button></div>`;
+  const fl=$("#fl");
+  fl.onclick=()=>{if(!fl.classList.contains("on")){fl.classList.add("on");haptic();say(formsTxt(v));$("#fbtn").style.visibility="visible"}else say(formsTxt(v))};
+  $("#yes").onclick=()=>{SES.ok++;SES.xp+=5;setSc(v,sc(v)<2?1:0,5);save();SES.i++;renderQ()};
+  $("#no").onclick=()=>{SES.mist.push(v);if(!SES.retried.has(v.v1)){SES.retried.add(v.v1);SES.queue.push({kind:"flash",v})}SES.i++;renderQ()};
+}
+function endSession(aborted){
+  document.querySelectorAll(".fb").forEach(x=>x.remove());
+  if(!SES)return go({s:"home"});
+  S.xp+=SES.xp;if(!aborted)S.sessions++;save();
+  const li=SES.li,after=li===null?allPct():lvlPct(LEVELS[li]);
+  if(aborted&&SES.i===0){const l=li;SES=null;return go(l===null?{s:"home"}:{s:"level",i:l})}
+  const answered=SES.mode==="cards"?SES.queue.length:SES.i;
+  const mist=[...new Set(SES.mist)];
+  setBack(()=>go(li===null?{s:"home"}:{s:"level",i:li}));
+  app.innerHTML=`<div class="res"><div style="font-size:50px">${SES.ok>=answered*0.8?"🎉":SES.ok>=answered*0.5?"💪":"📚"}</div>
+    <div class="score">${SES.ok}/${answered}</div><div class="muted">+${SES.xp} XP</div></div>
+    <div class="card"><div class="row between"><b>${li===null?"Общий прогресс":LEVELS[li].name}</b><span class="pct" id="pp">${SES.before}%</span></div>
+      <div class="bar big" style="margin-top:8px"><i id="pb" style="width:${SES.before}%"></i></div>
+      ${li!==null&&after>=50&&SES.before<50&&LEVELS[li+1]?`<p style="margin:10px 0 0">🔓 Открыт уровень «${LEVELS[li+1].name}»!</p>`:""}</div>
+    ${mist.length?`<div class="card mist"><b>Повтори</b>${mist.map(v=>`<div onclick="verbSheet('${v.v1}')">${v.emo} ${forms(v)}</div>`).join("")}</div>`:""}
+    <div class="row"><button class="btn ghost" onclick="go(${li===null?"{s:'home'}":`{s:'level',i:${li}}`})">Назад</button>
+    <button class="btn" onclick="${SES.mode==="mix"&&li===null?"startReview()":`startSession('${SES.mode}',${li})`}">Ещё раз</button></div>`;
+  setTimeout(()=>{const b=$("#pb");if(b){b.style.width=after+"%";$("#pp").textContent=after+"%"}},200);
+}
+
+/* ============ BLITZ ============ */
+function startBlitz(li){
+  touchStreak();
+  const pool=(li===null?VERBS.filter(v=>unlocked(v.lv)):LEVELS[li].verbs).filter(v=>v.v3);
+  let t=60,score=0,streak=0,cur,timer,done=false;
+  setBack(()=>{clearInterval(timer);go(li===null?{s:"home"}:{s:"level",i:li})});
+  const next=()=>{
+    const v=rnd(pool),truth=Math.random()<.5;let v2=v.v2[0],v3=v.v3[0];
+    if(!truth){if(Math.random()<.5)v2=fakes(v,"v2")[0];else v3=fakes(v,"v3")[0]}
+    cur={v,truth};$("#trip").innerHTML=`${v.v1} – ${esc(v2)} – ${esc(v3)}`;
+  };
+  app.innerHTML=`<div class="top"><button class="x" id="bx">✕</button><div class="bar"><i id="tb" style="width:100%;transition:width 1s linear"></i></div><span class="timer" id="tt">60</span></div>
+    <div class="row between"><span class="muted">Счёт: <b id="bs">0</b></span><span class="muted">Серия: <b id="bk">0</b></span></div>
+    <div class="card trip" id="trip"></div><div class="tf"><button class="no" id="bn">✗ Неверно</button><button class="yes" id="by">✓ Верно</button></div>
+    <p class="small muted" style="text-align:center">Верная ли тройка форм?</p>`;
+  const ans=yes=>{if(done)return;const good=yes===cur.truth;const tr=$("#trip");tr.classList.remove("flash-ok","flash-bad");void tr.offsetWidth;tr.classList.add(good?"flash-ok":"flash-bad");haptic(good?"ok":"bad");
+    if(good){streak++;score+=1+Math.floor(streak/5);setSc(cur.v,+1)}else{streak=0;setSc(cur.v,-1);t=Math.max(0,t-3)}
+    $("#bs").textContent=score;$("#bk").textContent=streak;next()};
+  $("#by").onclick=()=>ans(true);$("#bn").onclick=()=>ans(false);
+  $("#bx").onclick=()=>{clearInterval(timer);save();go(li===null?{s:"home"}:{s:"level",i:li})};
+  next();
+  timer=setInterval(()=>{t--;$("#tt").textContent=t;$("#tb").style.width=(t/60*100)+"%";
+    if(t<=0){clearInterval(timer);done=true;const rec=score>S.best;if(rec)S.best=score;S.xp+=score*5;save();
+      app.innerHTML=`<div class="res"><div style="font-size:50px">${rec?"🏆":"⚡"}</div><div class="score">${score}</div>
+      <div class="muted">${rec?"Новый рекорд!":"Рекорд: "+S.best} · +${score*5} XP</div></div>
+      <div class="row"><button class="btn ghost" onclick="go(${li===null?"{s:'home'}":`{s:'level',i:${li}}`})">Назад</button><button class="btn" onclick="startBlitz(${li})">Ещё раз</button></div>`}},1000);
+}
+
+/* ============ INIT ============ */
+function applyTgTheme(){try{if(!tg)return;tg.ready();tg.expand();const p=tg.themeParams||{},r=document.documentElement.style;
+  if(p.bg_color){r.setProperty("--bg",p.secondary_bg_color||p.bg_color);r.setProperty("--card",p.bg_color)}
+  if(p.text_color)r.setProperty("--text",p.text_color);if(p.hint_color)r.setProperty("--muted",p.hint_color);
+  if(p.button_color)r.setProperty("--accent",p.button_color);
+  if(tg.colorScheme==="dark"){r.setProperty("--chip","rgba(255,255,255,.07)");r.setProperty("--line","rgba(255,255,255,.12)")}}catch(e){}}
+load();applyTgTheme();cloudLoad();route();
+</script>
+</body>
+</html>
